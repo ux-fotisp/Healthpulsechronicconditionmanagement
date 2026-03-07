@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { C, T } from "../design/tokens";
 import { PatientHeader } from "../components/home/PatientHeader";
 import { ActiveStateCard } from "../components/home/ActiveStateCard";
 import { MedicationsDueCard } from "../components/home/MedicationsDueCard";
@@ -17,35 +18,129 @@ import { CheckInSparkline } from "../components/home/CheckInSparkline";
 import { CarePlanScoreCard } from "../components/home/CarePlanScoreCard";
 import { GoalsSummaryCard } from "../components/home/GoalsSummaryCard";
 import { DashboardMonitor } from "../components/home/DashboardMonitor";
-import { C } from "../design/tokens";
 import { DashboardProvider, useDashboardContext } from "../hooks/DashboardContext";
+import { IllnessStageProvider, useIllnessStage, type IllnessStage } from "../hooks/IllnessStageContext";
 import { DashboardSkeleton } from "../components/shared/LoadingSkeleton";
+import { SectionBanner } from "../components/shared/SectionBanner";
+import {
+  GraduationCap,
+  TrendingUp,
+  Activity,
+} from "lucide-react";
 
 /**
  * HealthPulse · Home Dashboard
- * Background: #111820 shell, card surfaces #FBFBFB (Soft Alabaster)
- * Wraps all children in DashboardProvider for single API call.
+ * Background: #4A4D4C shell, card surfaces #FBFBFB (Soft Alabaster)
+ * Wraps all children in DashboardProvider (single API call) and
+ * IllnessStageProvider (adaptive section priority based on glucose TIR).
  *
- * Sprint 5 additions:
- *   - DailyCheckIn card (condition-specific)
- *   - RoutineReminder modal (routine-anchored Smart Dose V2)
- *   - MissedDoseRecovery modal (guided missed-dose flow)
- *   - EmotionalCheckIn modal (triggered by abnormal readings or missed doses)
+ * Sprint 9 additions:
+ *   - IllnessStageProvider wraps HomeContent
+ *   - Adaptive section ordering based on illnessStage (learning/stabilizing/stable)
+ *   - Contextual stage banner below PatientHeader
+ *   - DashboardMonitor default tab driven by illnessStage
  */
 export function Home() {
   return (
     <DashboardProvider>
-      <HomeContent />
+      <IllnessStageProvider>
+        <HomeContent />
+      </IllnessStageProvider>
     </DashboardProvider>
   );
 }
 
+// ── Stage banner config ────────────────────────────────────────────────────────
+const STAGE_BANNER: Record<
+  IllnessStage,
+  {
+    icon: React.ReactNode;
+    title: string;
+    desc: string;
+    bg: string;
+    color: string;
+    border: string;
+  } | null
+> = {
+  learning: {
+    icon: <GraduationCap size={14} color={C.blueDark} />,
+    title: "Learning Your Patterns",
+    desc: "The more readings you log, the better your insights become.",
+    bg: C.blueLight,
+    color: C.blueDark,
+    border: C.blueBorder,
+  },
+  stabilizing: {
+    icon: <TrendingUp size={14} color={C.alertText} />,
+    title: "Trending Upward",
+    desc: "Your glucose is stabilizing — keep up the momentum.",
+    bg: C.alertLight,
+    color: C.alertText,
+    border: C.alertBorder,
+  },
+  stable: null, // No banner in stable — the user is doing well, celebrate silently
+};
+
+// ── Adaptive section order ─────────────────────────────────────────────────────
+// Each entry is a unique section key. The shared sections (recentActivity,
+// reminders, sparkline) always appear at the bottom in fixed order.
+type SectionKey =
+  | "checkin"
+  | "activeState"
+  | "monitor"
+  | "medsDue"
+  | "insight"
+  | "streak"
+  | "carePlan"
+  | "goals"
+  | "latestVital";
+
+const STAGE_ORDER: Record<IllnessStage, SectionKey[]> = {
+  // learning: watch vitals closely, encourage logging, education first
+  learning: [
+    "checkin",
+    "monitor",      // → defaults to vitals tab (DashboardMonitor reads stage)
+    "latestVital",
+    "medsDue",
+    "activeState",
+    "insight",
+    "streak",
+    "carePlan",
+    "goals",
+  ],
+  // stabilizing: adherence + correlation key, goals on the horizon
+  stabilizing: [
+    "checkin",
+    "activeState",
+    "monitor",      // → defaults to vitals tab
+    "medsDue",
+    "insight",
+    "streak",
+    "latestVital",
+    "carePlan",
+    "goals",
+  ],
+  // stable: achievement & long-term orientation
+  stable: [
+    "checkin",
+    "activeState",
+    "carePlan",
+    "goals",
+    "monitor",      // → defaults to medications tab
+    "streak",
+    "insight",
+    "medsDue",
+    "latestVital",
+  ],
+};
+
 function HomeContent() {
   const { loading, error, data } = useDashboardContext();
+  const { illnessStage, stageLoading } = useIllnessStage();
 
-  // ── Sprint 5 modal states ────────────────────────────────────────────
-  const [showRoutineReminder, setShowRoutineReminder] = useState(false);
-  const [showMissedRecovery, setShowMissedRecovery]   = useState(false);
+  // ── Sprint 5 modal states ─────────────────────────────────────────────────
+  const [showRoutineReminder,  setShowRoutineReminder]  = useState(false);
+  const [showMissedRecovery,   setShowMissedRecovery]   = useState(false);
   const [showEmotionalCheckIn, setShowEmotionalCheckIn] = useState(false);
   const [emotionalTrigger, setEmotionalTrigger] = useState({ type: "", detail: "" });
 
@@ -87,11 +182,76 @@ function HomeContent() {
   if (loading) return <DashboardSkeleton />;
   if (error) return (
     <div style={{ background: C.shell, minHeight: "100vh" }} className="flex items-center justify-center p-8">
-      <p style={{ color: "#D9A596", fontSize: 16, fontFamily: "inherit", textAlign: "center" }}>
+      <p style={{ color: C.terracotta, fontSize: 16, fontFamily: "inherit", textAlign: "center" }}>
         Unable to load dashboard. Please try again.
       </p>
     </div>
   );
+
+  // ── Section map ─────────────────────────────────────────────────────────────
+  const sectionMap: Record<SectionKey, React.ReactNode> = {
+    checkin: (
+      <section key="checkin" aria-labelledby="checkin-heading">
+        <p id="checkin-heading" className="sr-only">Daily health check-in</p>
+        <DailyCheckIn />
+      </section>
+    ),
+    activeState: (
+      <section key="activeState" aria-labelledby="active-state-heading">
+        <p id="active-state-heading" className="sr-only">Active state: next priority action</p>
+        <ActiveStateCard />
+      </section>
+    ),
+    monitor: (
+      <section key="monitor" aria-labelledby="monitor-heading">
+        <p id="monitor-heading" className="sr-only">Care dashboard monitor: medications, vitals, and upcoming examinations</p>
+        <DashboardMonitor />
+      </section>
+    ),
+    medsDue: (
+      <section key="medsDue" aria-labelledby="meds-due-heading">
+        <p id="meds-due-heading" className="sr-only">Medications due today with intake guidance</p>
+        <MedicationsDueCard />
+      </section>
+    ),
+    insight: (
+      <section key="insight" aria-labelledby="insight-heading">
+        <p id="insight-heading" className="sr-only">Correlation insights: medication timing and wellness</p>
+        <CorrelationInsightCard />
+      </section>
+    ),
+    streak: (
+      <section key="streak" aria-labelledby="adherence-heading">
+        <p id="adherence-heading" className="sr-only">Medication adherence streaks and history</p>
+        <AdherenceStreakCard />
+      </section>
+    ),
+    carePlan: (
+      <section key="carePlan" aria-labelledby="care-score-heading" className="px-4">
+        <p id="care-score-heading" className="sr-only">Care plan composite health score</p>
+        <CarePlanScoreCard />
+      </section>
+    ),
+    goals: (
+      <section key="goals" aria-labelledby="goals-heading" className="px-4">
+        <p id="goals-heading" className="sr-only">Care plan goals and milestones progress</p>
+        <GoalsSummaryCard />
+      </section>
+    ),
+    latestVital: (
+      <section key="latestVital" aria-labelledby="latest-vital-heading">
+        <p id="latest-vital-heading" className="sr-only">Latest vital reading</p>
+        <LatestVitalCard />
+      </section>
+    ),
+  };
+
+  // Ordered sections based on illness stage (fall back to stabilizing order while loading)
+  const effectiveStage: IllnessStage = stageLoading ? "stabilizing" : illnessStage;
+  const orderedSections = STAGE_ORDER[effectiveStage].map(key => sectionMap[key]);
+
+  // Stage banner (null for "stable")
+  const banner = STAGE_BANNER[effectiveStage];
 
   return (
     <div
@@ -101,58 +261,27 @@ function HomeContent() {
       <PatientHeader />
 
       <div className="flex flex-col gap-4 py-4">
-        {/* Sprint 5: Daily Check-In (condition-specific) */}
-        <section aria-labelledby="checkin-heading">
-          <p id="checkin-heading" className="sr-only">Daily health check-in</p>
-          <DailyCheckIn />
-        </section>
 
-        <section aria-labelledby="active-state-heading">
-          <p id="active-state-heading" className="sr-only">Active state: next priority action</p>
-          <ActiveStateCard />
-        </section>
+        {/* ── Illness-stage contextual banner (learning & stabilizing only) ── */}
+        {!stageLoading && banner && (
+          <section aria-live="polite" aria-label={`Care stage: ${effectiveStage}`}>
+            <SectionBanner
+              color={banner.color}
+              bg={banner.bg}
+              border={banner.border}
+              icon={banner.icon}
+              title={banner.title}
+              desc={banner.desc}
+              className="mx-4"
+              ariaLabel={`Care stage: ${effectiveStage}`}
+            />
+          </section>
+        )}
 
-        {/* Care Dashboard Monitor — Medications, Vitals & Examinations submenu */}
-        <section aria-labelledby="monitor-heading">
-          <p id="monitor-heading" className="sr-only">Care dashboard monitor: medications, vitals, and upcoming examinations</p>
-          <DashboardMonitor />
-        </section>
+        {/* ── Adaptive section order (driven by illnessStage) ────────────── */}
+        {orderedSections}
 
-        <section aria-labelledby="meds-due-heading">
-          <p id="meds-due-heading" className="sr-only">Medications due today with intake guidance</p>
-          <MedicationsDueCard />
-        </section>
-
-        {/* Correlation Insight Engine (US1) — between meds and vitals */}
-        <section aria-labelledby="insight-heading">
-          <p id="insight-heading" className="sr-only">Correlation insights: medication timing and wellness</p>
-          <CorrelationInsightCard />
-        </section>
-
-        {/* Sprint 2: Medication Adherence Streak Tracker */}
-        <section aria-labelledby="adherence-heading">
-          <p id="adherence-heading" className="sr-only">Medication adherence streaks and history</p>
-          <AdherenceStreakCard />
-        </section>
-
-        {/* Sprint 7: Care Plan Score — composite health score */}
-        <section aria-labelledby="care-score-heading" className="px-4">
-          <p id="care-score-heading" className="sr-only">Care plan composite health score</p>
-          <CarePlanScoreCard />
-        </section>
-
-        {/* Sprint 8: Goals & Milestones summary */}
-        <section aria-labelledby="goals-heading" className="px-4">
-          <p id="goals-heading" className="sr-only">Care plan goals and milestones progress</p>
-          <GoalsSummaryCard />
-        </section>
-
-        <section aria-labelledby="latest-vital-heading">
-          <p id="latest-vital-heading" className="sr-only">Latest vital reading</p>
-          <LatestVitalCard />
-        </section>
-
-        {/* Sprint 5: Emotional check-in prompt for abnormal readings */}
+        {/* ── Emotional check-in prompt (abnormal reading — fixed position) ── */}
         {hasAbnormalReading && !showEmotionalCheckIn && (
           <section aria-labelledby="emotional-prompt-heading">
             <p id="emotional-prompt-heading" className="sr-only">Emotional check-in prompt</p>
@@ -212,6 +341,7 @@ function HomeContent() {
           </section>
         )}
 
+        {/* ── Fixed tail sections (order invariant) ──────────────────────── */}
         <section aria-labelledby="summary-heading">
           <p id="summary-heading" className="sr-only">Today's health summary</p>
           <TodaysSummary />
@@ -236,7 +366,7 @@ function HomeContent() {
         </section>
       </div>
 
-      {/* ── Sprint 5/6 Modals ───────────────────────────────────────────── */}
+      {/* ── Sprint 5/6 Modals ──────────────────────────────────────────────── */}
       {showRoutineReminder && (
         <RoutineReminder
           medicationName={overdueReminder?.medicationName ?? demoMed?.name ?? "Medication"}

@@ -55,9 +55,9 @@
 
   --hp-bg:               #FBFBFB;
   --hp-card:             #FFFFFF;
-  --hp-shell:            #111820;
-  --hp-shell-2:          #1A2B1C;
-  --hp-nav:              #0D1A0E;
+  --hp-shell:            #4A4D4C;
+  --hp-shell-2:          #323432;
+  --hp-nav:              #3A3D3C;
 
   --hp-alert:            #D4A373;
   --hp-alert-dark:       #B45309;
@@ -244,7 +244,7 @@
 }
 
 .dark {
-  --background: #111820;
+  --background: #4A4D4C;
   --foreground: #F1F5F9;
   --card: #1E293B;
   --card-foreground: #F1F5F9;
@@ -501,8 +501,8 @@
   }
 
   /* ── Focus ring on dark backgrounds (shell areas) ─────────────────── */
-  [style*="background: #111820"] button:focus-visible,
-  [style*="background: rgb(17, 24, 32)"] button:focus-visible {
+  [style*="background: #4A4D4C"] button:focus-visible,
+  [style*="background: rgb(74, 77, 76)"] button:focus-visible {
     outline-color: rgba(255, 255, 255, 0.6);
     box-shadow: 0 0 0 4px rgba(142, 175, 157, 0.35);
   }

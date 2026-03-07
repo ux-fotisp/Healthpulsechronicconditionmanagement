@@ -4,6 +4,7 @@
  * Touch targets: min-height 56px
  */
 
+import React from "react";
 import { Bell, Activity, Pill, Calendar, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { C, T, L } from "../../design/tokens";
 

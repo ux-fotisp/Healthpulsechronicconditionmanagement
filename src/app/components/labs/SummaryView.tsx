@@ -5,7 +5,7 @@
  * Typography: H1 26px, Body 18px, Caption 14px (Montserrat)
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   ChevronLeft,
   Printer,
@@ -315,7 +315,7 @@ export function SummaryView({ onClose }: { onClose: () => void }) {
         <button
           onClick={handleShare}
           className="w-full rounded-2xl flex items-center justify-center gap-3 transition-all"
-          style={{ background: shared ? C.successLight : C.primary, border: "1px solid rgba(142,175,157,0.4)", color: shared ? C.successDark : "#111820", fontSize: T.body, fontWeight: 700, fontFamily: "inherit", minHeight: L.touch }}
+          style={{ background: shared ? C.successLight : C.primary, border: "1px solid rgba(142,175,157,0.4)", color: shared ? C.successDark : C.text, fontSize: T.body, fontWeight: 700, fontFamily: "inherit", minHeight: L.touch }}
           aria-label="Share summary with care team"
           aria-live="polite"
           onMouseEnter={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark; }}

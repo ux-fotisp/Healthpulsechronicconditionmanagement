@@ -315,7 +315,7 @@ export function CorrelationInsightCard() {
         <p
           style={{
             color:      C.text,
-            fontSize:   T.body,          /* 18px — patient-facing data copy */
+            fontSize:   T.bodySm,          /* 18px — patient-facing data copy */
             fontWeight: 500,
             lineHeight: 1.6,
             fontFamily: "inherit",
@@ -367,7 +367,7 @@ export function CorrelationInsightCard() {
               style={{
                 background:    C.primary,
                 border:        "1px solid rgba(142,175,157,0.4)",
-                color:         "#111820",
+                color:         C.text,
                 fontSize:      T.bodySm,
                 fontWeight:    700,
                 letterSpacing: "0.02em",

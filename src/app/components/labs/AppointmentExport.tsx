@@ -698,7 +698,7 @@ export function AppointmentExport({ onClose }: { onClose: () => void }) {
             background:   shared ? C.successLight : C.primary,
             border:       "1px solid rgba(142,175,157,0.4)",
             borderRadius: L.rXl,
-            color:        shared ? C.successDark : "#111820",
+            color:        shared ? C.successDark : C.text,
             fontSize:     T.body,
             fontWeight:   700,
             fontFamily:   "inherit",

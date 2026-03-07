@@ -14,7 +14,7 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   AlertTriangle, X, CheckCircle, Clock,
   Pill, Phone, SkipForward, ArrowRight,
@@ -276,7 +276,7 @@ export function MissedDoseRecovery({
                 minHeight:  L.touch,
                 background: reason ? C.primary : C.locked,
                 border:     `1px solid ${reason ? C.primaryBorder : C.border}`,
-                color:      reason ? "#111820" : C.textMuted,
+                color:      reason ? C.text : C.textMuted,
                 fontSize:   T.body,
                 fontWeight: 700,
                 fontFamily: "inherit",
@@ -381,7 +381,7 @@ export function MissedDoseRecovery({
                   minHeight:  L.touch,
                   background: action ? C.primary : C.locked,
                   border:     `1px solid ${action ? C.primaryBorder : C.border}`,
-                  color:      action ? "#111820" : C.textMuted,
+                  color:      action ? C.text : C.textMuted,
                   fontSize:   T.body,
                   fontWeight: 700,
                   fontFamily: "inherit",
@@ -468,7 +468,7 @@ export function MissedDoseRecovery({
                   minHeight:  L.touch,
                   background: C.primary,
                   border:     `1px solid ${C.primaryBorder}`,
-                  color:      "#111820",
+                  color:      C.text,
                   fontSize:   T.body,
                   fontWeight: 700,
                   fontFamily: "inherit",
@@ -535,7 +535,7 @@ export function MissedDoseRecovery({
                   minHeight:  L.touch,
                   background: C.primary,
                   border:     `1px solid ${C.primaryBorder}`,
-                  color:      "#111820",
+                  color:      C.text,
                   fontSize:   T.body,
                   fontWeight: 700,
                   fontFamily: "inherit",

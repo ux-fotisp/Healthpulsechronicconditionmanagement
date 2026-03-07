@@ -12,6 +12,7 @@
  *   • Status conveyed by icon + color + text (never color alone)
  */
 
+import React from "react";
 import { Utensils, Droplets, Clock, AlertTriangle, Moon, Info, Coffee } from "lucide-react";
 import { C, T, L } from "../../design/tokens";
 

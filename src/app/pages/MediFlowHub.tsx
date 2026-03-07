@@ -9,7 +9,7 @@
  * Design: MediFlow token system — Soft Alabaster bg, MediFlow palette
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import {
   UserCheck, FlaskConical, BellRing, ChevronRight,

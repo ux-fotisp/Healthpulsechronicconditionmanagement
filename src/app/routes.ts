@@ -14,6 +14,7 @@ import { HealthProfileWizard } from "./pages/HealthProfileWizard";
 import { MediFlowVault } from "./pages/MediFlowVault";
 import { DesignSystemPage } from "./pages/DesignSystemPage";
 import { GoalsTracker } from "./pages/GoalsTracker";
+import { NotFound } from "./pages/NotFound";
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +37,8 @@ export const router = createBrowserRouter([
       { path: "mediflow/vault",         Component: MediFlowVault       },
       // ── Fluid Design System Showcase ────────────────────────────
       { path: "design-system",          Component: DesignSystemPage    },
+      // ── 404 Catch-All ─────────────────────────────────────────
+      { path: "*",                      Component: NotFound            },
     ],
   },
 ]);

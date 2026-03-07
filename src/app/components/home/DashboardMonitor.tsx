@@ -10,7 +10,7 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Pill,
   Activity,
@@ -25,9 +25,12 @@ import {
   MapPin,
   Video,
   Phone,
+  GraduationCap,
+  Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useDashboardContext } from "../../hooks/DashboardContext";
+import { useIllnessStage, type IllnessStage } from "../../hooks/IllnessStageContext";
 import {
   MOCK_NOW,
   formatTime,
@@ -692,10 +695,47 @@ function EmptyState({
   );
 }
 
+// ── Stage badge config ───────────────────────────────────────────────────────
+const STAGE_META: Record<
+  IllnessStage,
+  { label: string; bg: string; color: string; icon: React.ReactNode }
+> = {
+  learning: {
+    label: "Learning",
+    bg: "rgba(123,154,204,0.15)",
+    color: "#1E4A8A",
+    icon: <GraduationCap size={10} color="#1E4A8A" />,
+  },
+  stabilizing: {
+    label: "Stabilizing",
+    bg: "rgba(212,163,115,0.18)",
+    color: "#92400E",
+    icon: <TrendingUp size={10} color="#92400E" />,
+  },
+  stable: {
+    label: "Stable",
+    bg: "rgba(142,175,157,0.2)",
+    color: "#2D6A4F",
+    icon: <Sparkles size={10} color="#2D6A4F" />,
+  },
+};
+
 // ── Main DashboardMonitor ────────────────────────────────────────────────────
 export function DashboardMonitor() {
   const [activeTab, setActiveTab] = useState<Tab>("medications");
   const { data } = useDashboardContext();
+  const { illnessStage, stageLoading } = useIllnessStage();
+
+  // Set the initial tab once — after the illness stage resolves:
+  //   learning / stabilizing → "vitals" (watch readings closely)
+  //   stable               → "medications" (maintenance focus)
+  const tabInitialized = useRef(false);
+  useEffect(() => {
+    if (!stageLoading && !tabInitialized.current) {
+      tabInitialized.current = true;
+      setActiveTab(illnessStage === "stable" ? "medications" : "vitals");
+    }
+  }, [stageLoading, illnessStage]);
 
   if (!data) return null;
 
@@ -730,24 +770,54 @@ export function DashboardMonitor() {
     >
       {/* Section header */}
       <div
-        className="flex items-center gap-2 px-5 py-3"
+        className="flex items-center justify-between px-5 py-3"
         style={{
           borderBottom: `1px solid ${C.borderLight}`,
           background: "rgba(142,175,157,0.06)",
         }}
       >
-        <Stethoscope size={14} color={C.primary} aria-hidden="true" />
-        <span
-          style={{
-            color: C.textSub,
-            fontSize: T.nano,
-            fontWeight: 700,
-            letterSpacing: "0.1em",
-            fontFamily: "inherit",
-          }}
-        >
-          CARE DASHBOARD
-        </span>
+        <div className="flex items-center gap-2">
+          <Stethoscope size={14} color={C.primary} aria-hidden="true" />
+          <span
+            style={{
+              color: C.textSub,
+              fontSize: T.nano,
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              fontFamily: "inherit",
+            }}
+          >
+            CARE DASHBOARD
+          </span>
+        </div>
+
+        {/* Illness stage pill */}
+        {!stageLoading && (() => {
+          const meta = STAGE_META[illnessStage];
+          return (
+            <div
+              className="flex items-center gap-1 rounded-full px-2 py-0.5"
+              style={{
+                background: meta.bg,
+                border: `1px solid ${meta.color}30`,
+              }}
+              aria-label={`Illness stage: ${meta.label}`}
+            >
+              {meta.icon}
+              <span
+                style={{
+                  color: meta.color,
+                  fontSize: 9,
+                  fontWeight: 700,
+                  fontFamily: "inherit",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {meta.label.toUpperCase()}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Tab bar */}

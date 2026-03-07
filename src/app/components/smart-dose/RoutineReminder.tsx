@@ -14,7 +14,7 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Coffee, Sun, Sunset, Moon,
   Pill, CheckCircle, Clock, AlertTriangle,
@@ -240,7 +240,7 @@ export function RoutineReminder({
               className="w-full rounded-xl flex items-center justify-center gap-2 transition-all"
               style={{
                 background:  C.primary,
-                color:       "#111820",
+                color:       C.text,
                 fontSize:    T.body,
                 fontWeight:  700,
                 fontFamily:  "inherit",

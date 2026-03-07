@@ -177,7 +177,22 @@ routes.get(`${PREFIX}/medication-refills/:patientId/:medId`, async (c) => {
     const pid = c.req.param("patientId");
     const medId = c.req.param("medId");
     const data = await kv.get(`medication_refill:${pid}:${medId}`);
-    if (!data) return errJson(c, `Refill data for ${medId} not found`, 404);
+    if (!data) {
+      // Return a default empty refill for medications without seeded refill data
+      return c.json({
+        medicationId: medId,
+        pillsRemaining: 0,
+        totalPills: 0,
+        refillDueDate: null,
+        lastRefillDate: null,
+        prescribingDoctor: null,
+        prescriptionDate: null,
+        orientation: null,
+        prescriptionNumber: null,
+        pharmacy: null,
+        refillHistory: [],
+      });
+    }
     return c.json(data);
   } catch (e: any) {
     return errJson(c, `Error fetching refill: ${e.message}`);
@@ -1487,6 +1502,53 @@ routes.put(`${PREFIX}/notification-prefs/:patientId`, async (c) => {
     return c.json(updated);
   } catch (e: any) {
     return errJson(c, `Error updating notification preferences: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  ILLNESS STAGE (Sprint 9 — Adaptive Stage Persistence)
+//  KV key: illness_stage:{patientId}
+//  Stages: "learning" | "stabilizing" | "stable"
+//  Computed on the frontend from glucose Time-in-Range + log volume, then
+//  persisted here for cross-surface use (notifications, provider dashboards).
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /illness-stage/:patientId — Retrieve persisted illness stage */
+routes.get(`${PREFIX}/illness-stage/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const data = await kv.get(`illness_stage:${pid}`);
+    // Return safe defaults so the frontend never sees a 404 for a new patient
+    return c.json(data || {
+      patientId: pid,
+      stage: "learning",
+      timeInRange: 0,
+      logCount: 0,
+      updatedAt: null,
+    });
+  } catch (e: any) {
+    return errJson(c, `Error fetching illness stage: ${e.message}`);
+  }
+});
+
+/** PUT /illness-stage/:patientId — Persist the derived illness stage */
+routes.put(`${PREFIX}/illness-stage/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const entry = {
+      ...body,
+      patientId: pid,
+      updatedAt: new Date().toISOString(),
+    };
+    await kv.set(`illness_stage:${pid}`, entry);
+    console.log(
+      `[ILLNESS-STAGE] Persisted '${body.stage}' for patient ${pid}` +
+      ` — TIR ${body.timeInRange}%, ${body.logCount} glucose logs`
+    );
+    return c.json(entry);
+  } catch (e: any) {
+    return errJson(c, `Error persisting illness stage: ${e.message}`);
   }
 });
 

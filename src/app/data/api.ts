@@ -741,3 +741,24 @@ export const getNotificationPrefs = (pid = PID) =>
   get<NotificationPrefsDTO>(`/notification-prefs/${pid}`);
 export const updateNotificationPrefs = (data: Partial<NotificationPrefsDTO>, pid = PID) =>
   put<NotificationPrefsDTO>(`/notification-prefs/${pid}`, data);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  ILLNESS STAGE (Sprint 9 — Adaptive Stage Persistence)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface IllnessStageDTO {
+  patientId?: string;
+  /** Computed from TIR + log volume: "learning" | "stabilizing" | "stable" */
+  stage: "learning" | "stabilizing" | "stable";
+  timeInRange: number;   // 0–100 percent
+  logCount: number;      // total glucose entries
+  updatedAt: string | null;
+}
+
+export const getIllnessStage = (pid = PID) =>
+  get<IllnessStageDTO>(`/illness-stage/${pid}`);
+
+export const setIllnessStage = (
+  data: Pick<IllnessStageDTO, "stage" | "timeInRange" | "logCount">,
+  pid = PID,
+) => put<IllnessStageDTO>(`/illness-stage/${pid}`, data);

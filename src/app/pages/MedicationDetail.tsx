@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   ChevronLeft, Clock, CheckCircle, ChevronDown, ChevronUp, RefreshCw,
   FileText, AlertTriangle, BookOpen, CalendarDays, User, Store, Hash, Pill, Palette,
@@ -21,8 +21,8 @@ function RefillTank({ remaining, total, color }: { remaining: number; total: num
   const r = 52, cx = 64, cy = 64;
   const circumference = 2 * Math.PI * r;
   const offset = circumference * (1 - pct);
-  const trackColor = pct <= 0.25 ? C.alert : pct <= 0.5 ? "#C4A87A" : color;
-  const labelColor = pct <= 0.25 ? C.alertText : pct <= 0.5 ? "#7A6230" : C.successDark;
+  const trackColor = pct <= 0.25 ? C.alert : pct <= 0.5 ? C.amber : color;
+  const labelColor = pct <= 0.25 ? C.alertText : pct <= 0.5 ? C.amberDark : C.successDark;
   const bgColor = pct <= 0.25 ? C.alertLight : pct <= 0.5 ? "rgba(196,168,122,0.1)" : C.primaryLight;
   return (
     <div className="flex flex-col items-center gap-2">
@@ -177,7 +177,7 @@ export function MedicationDetail() {
         {/* Tabs */}
         <div className="mx-4 mt-3 flex rounded-xl overflow-hidden" style={{ border: "1px solid rgba(142,175,157,0.2)" }}>
           {(["overview", "history"] as const).map((tab) => (
-            <button key={tab} onClick={() => setActiveTab(tab)} className="flex-1 transition-all" style={{ background: activeTab === tab ? C.primary : "rgba(251,251,251,0.04)", color: activeTab === tab ? "#111820" : C.textOnDarkSub, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.04em", fontFamily: "inherit", textTransform: "uppercase", minHeight: L.touch }} aria-pressed={activeTab === tab}>
+            <button key={tab} onClick={() => setActiveTab(tab)} className="flex-1 transition-all" style={{ background: activeTab === tab ? C.primary : "rgba(251,251,251,0.04)", color: activeTab === tab ? C.text : C.textOnDarkSub, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.04em", fontFamily: "inherit", textTransform: "uppercase", minHeight: L.touch }} aria-pressed={activeTab === tab}>
               {tab === "overview" ? "Overview" : "Refill History"}
             </button>
           ))}
@@ -228,7 +228,7 @@ export function MedicationDetail() {
         <div className="sticky bottom-0 mx-4 mb-6 flex gap-3" style={{ paddingTop: 12, paddingBottom: 4 }}>
           {!takenToday ? (
             <>
-              <button className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all" style={{ background: C.primary, border: "1px solid rgba(142,175,157,0.4)", color: "#111820", fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.2)", minHeight: L.touch }} aria-label={`Log dose of ${med.name}`} onClick={handleLogDose} disabled={logDoseLoading}><Pill size={16} />Log Dose</button>
+              <button className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all" style={{ background: C.primary, border: "1px solid rgba(142,175,157,0.4)", color: C.text, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.2)", minHeight: L.touch }} aria-label={`Log dose of ${med.name}`} onClick={handleLogDose} disabled={logDoseLoading}><Pill size={16} />Log Dose</button>
               <button onClick={() => setShowReminder(true)} className="rounded-xl px-5 flex items-center justify-center transition-all" style={{ background: "rgba(251,251,251,0.1)", border: `1px solid ${C.borderMedium}`, color: C.textOnDark, fontSize: T.caption, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.2)", minHeight: L.touch }} aria-label="Set snooze reminder">Snooze</button>
             </>
           ) : (

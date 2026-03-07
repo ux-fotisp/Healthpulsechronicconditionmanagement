@@ -10,7 +10,7 @@
  * Guardrail 14: Token-driven — all values from tokens.ts
  */
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   X,
   Heart,

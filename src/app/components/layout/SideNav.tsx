@@ -7,6 +7,7 @@
 import { Home, ClipboardList, Lock, CalendarDays, User, Activity, Target } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
 import { FL_C } from "../../design/fluidSystem";
+import { C } from "../../design/tokens";
 
 const NAV_ITEMS = [
   { label: "Home",        icon: Home,          path: "/"            },
@@ -27,7 +28,7 @@ export function SideNav() {
       style={{
         width:       240,
         minWidth:    240,
-        background:  "#0D1A0E",
+        background:  C.nav,
         borderRight: `1px solid rgba(94,130,113,0.15)`,
         display:     "flex",
         flexDirection:"column",
@@ -132,10 +133,16 @@ export function SideNav() {
               aria-label={`Navigate to ${item.label}`}
               aria-current={isActive ? "page" : undefined}
               onMouseEnter={(e) => {
-                if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)";
+                if (!isActive) {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(107,158,135,0.10)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(107,158,135,0.12)";
+                }
               }}
               onMouseLeave={(e) => {
-                if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                if (!isActive) {
+                  (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "transparent";
+                }
               }}
             >
               {/* Active indicator line */}

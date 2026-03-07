@@ -7,7 +7,7 @@
  * WCAG 2.1 AA · 56px touch targets · Muted Healing Palette
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   X, ShieldCheck, CheckCircle, XCircle, Clock,
   Plus, Pencil, Trash2, Stethoscope,
@@ -229,7 +229,7 @@ export function ProviderReviewPanel({ onClose, onActionComplete }: ProviderRevie
                           minHeight: L.touch,
                           background: C.primary,
                           border: `1px solid ${C.primaryBorder}`,
-                          color: "#111820",
+                          color: C.text,
                           fontSize: T.bodySm,
                           fontWeight: 700,
                           fontFamily: "inherit",

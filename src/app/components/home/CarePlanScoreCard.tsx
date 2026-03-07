@@ -1,12 +1,4 @@
-/**
- * HealthPulse · Care Plan Score Card
- * ═══════════════════════════════════
- * Composite health score (0–100) with radial gauge, breakdown,
- * weekly trend sparkline, and badge level.
- *
- * WCAG 2.1 AA · 56px touch targets · Muted Healing Palette
- */
-
+import React from "react";
 import { useCarePlanScore } from "../../hooks/useHealthData";
 import { Trophy, TrendingUp, Pill, Activity, CalendarCheck, ClipboardList, Heart } from "lucide-react";
 import { C, T, L } from "../../design/tokens";

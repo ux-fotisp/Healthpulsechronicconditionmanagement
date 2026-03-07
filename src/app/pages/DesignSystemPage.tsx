@@ -9,7 +9,7 @@
  * and FL_C / FL_T / FL_L constants from fluidSystem.ts.
  */
 
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   Monitor, Smartphone, Tablet, CheckCircle, AlertTriangle,
   Lock, LockOpen, Activity, Eye, EyeOff, Zap, Type,

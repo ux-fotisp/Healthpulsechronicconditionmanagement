@@ -25,6 +25,7 @@ import { C, T, L } from "../../design/tokens";
 import { toast } from "sonner";
 import { useBPReadings, useLogBPReading } from "../../hooks/useHealthData";
 import type { BPReadingDTO } from "../../data/api";
+import { SectionBanner } from "../shared/SectionBanner";
 
 export interface BPReading {
   id: string;
@@ -40,10 +41,10 @@ export interface BPReading {
 type BPCategory = "normal" | "elevated" | "stage1" | "stage2" | "crisis";
 
 function classifyBP(sys: number, dia: number): { category: BPCategory; label: string; color: string; textColor: string; borderColor: string } {
-  if (sys >= 180 || dia >= 120) return { category: "crisis", label: "Hypertensive Crisis", color: "rgba(188,108,37,0.15)", textColor: "#92400E", borderColor: "rgba(188,108,37,0.3)" };
-  if (sys >= 140 || dia >= 90) return { category: "stage2", label: "High BP (Stage 2)", color: "rgba(212,163,115,0.15)", textColor: "#92400E", borderColor: "rgba(212,163,115,0.3)" };
-  if ((sys >= 130 && sys < 140) || (dia >= 80 && dia < 90)) return { category: "stage1", label: "High BP (Stage 1)", color: "rgba(196,168,122,0.12)", textColor: "#7A6230", borderColor: "rgba(196,168,122,0.3)" };
-  if (sys >= 120 && sys < 130 && dia < 80) return { category: "elevated", label: "Elevated", color: "rgba(196,168,122,0.08)", textColor: "#7A6230", borderColor: "rgba(196,168,122,0.2)" };
+  if (sys >= 180 || dia >= 120) return { category: "crisis", label: "Hypertensive Crisis", color: "rgba(188,108,37,0.15)", textColor: C.alertText, borderColor: "rgba(188,108,37,0.3)" };
+  if (sys >= 140 || dia >= 90) return { category: "stage2", label: "High BP (Stage 2)", color: C.alertLight, textColor: C.alertText, borderColor: C.alertBorder };
+  if ((sys >= 130 && sys < 140) || (dia >= 80 && dia < 90)) return { category: "stage1", label: "High BP (Stage 1)", color: "rgba(196,168,122,0.12)", textColor: C.amberDark, borderColor: "rgba(196,168,122,0.3)" };
+  if (sys >= 120 && sys < 130 && dia < 80) return { category: "elevated", label: "Elevated", color: "rgba(196,168,122,0.08)", textColor: C.amberDark, borderColor: "rgba(196,168,122,0.2)" };
   return { category: "normal", label: "Normal", color: C.successLight, textColor: C.successDark, borderColor: C.successBorder };
 }
 
@@ -111,15 +112,15 @@ function MiniTrendChart({ readings }: { readings: BPReading[] }) {
       <text x={w - pad + 4} y={yScale(80) + 3} fill={C.textMuted} fontSize="8" fontFamily="inherit">80</text>
 
       {/* Systolic line */}
-      <path d={sysPath} fill="none" stroke="#BC6C8A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={sysPath} fill="none" stroke={C.rose} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {/* Diastolic line */}
-      <path d={diaPath} fill="none" stroke="#7B9ACC" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={diaPath} fill="none" stroke={C.blue} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
       {/* Dots */}
       {sorted.map((r, i) => (
         <g key={r.id}>
-          <circle cx={xScale(i)} cy={yScale(r.systolic)} r={3} fill="#BC6C8A" />
-          <circle cx={xScale(i)} cy={yScale(r.diastolic)} r={3} fill="#7B9ACC" />
+          <circle cx={xScale(i)} cy={yScale(r.systolic)} r={3} fill={C.rose} />
+          <circle cx={xScale(i)} cy={yScale(r.diastolic)} r={3} fill={C.blue} />
         </g>
       ))}
     </svg>
@@ -226,9 +227,9 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
           <div className="flex items-center gap-3">
             <div
               className="flex items-center justify-center rounded-xl"
-              style={{ width: 44, height: 44, background: "rgba(188,108,138,0.12)", border: "1px solid rgba(188,108,138,0.3)" }}
+              style={{ width: 44, height: 44, background: C.roseLight, border: `1px solid ${C.roseBorder}` }}
             >
-              <Heart size={20} color="#BC6C8A" />
+              <Heart size={20} color={C.rose} />
             </div>
             <div>
               <h2 style={{ color: C.text, fontSize: T.h2, fontWeight: 700, fontFamily: "inherit", margin: 0 }}>
@@ -249,6 +250,22 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
           </button>
         </div>
 
+        {/* Learning-phase insight banner */}
+        {readings.length < 14 && (
+          <div className="mx-5 mt-3">
+            <SectionBanner
+              color={C.blueDark}
+              bg={C.blueLight}
+              border={C.blueBorder}
+              icon={<Heart size={14} color={C.blueDark} />}
+              title="Building Your BP Profile"
+              desc={`${14 - readings.length} more readings to unlock personalized insights.`}
+              trailingIcon={<Activity size={16} color={C.blueDark} style={{ opacity: 0.4 }} aria-hidden="true" />}
+              ariaLabel="Blood pressure learning phase"
+            />
+          </div>
+        )}
+
         {/* Latest Reading Card */}
         {latest && latestClass && (
           <div className="mx-5 mt-4 rounded-2xl overflow-hidden" style={{ background: C.card, border: `1px solid ${C.border}` }}>
@@ -266,7 +283,7 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
             </div>
             <div className="flex items-center justify-around py-5">
               <div className="flex flex-col items-center">
-                <span style={{ color: "#BC6C8A", fontSize: 36, fontWeight: 800, lineHeight: 1, fontFamily: "inherit" }}>
+                <span style={{ color: C.rose, fontSize: 36, fontWeight: 800, lineHeight: 1, fontFamily: "inherit" }}>
                   {latest.systolic}
                 </span>
                 <span style={{ color: C.textMuted, fontSize: T.nano, fontWeight: 600, fontFamily: "inherit", marginTop: 4 }}>
@@ -275,7 +292,7 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
               </div>
               <div style={{ width: 1, height: 40, background: C.borderLight }} />
               <div className="flex flex-col items-center">
-                <span style={{ color: "#7B9ACC", fontSize: 36, fontWeight: 800, lineHeight: 1, fontFamily: "inherit" }}>
+                <span style={{ color: C.blue, fontSize: 36, fontWeight: 800, lineHeight: 1, fontFamily: "inherit" }}>
                   {latest.diastolic}
                 </span>
                 <span style={{ color: C.textMuted, fontSize: T.nano, fontWeight: 600, fontFamily: "inherit", marginTop: 4 }}>
@@ -322,11 +339,11 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
             <span style={{ color: C.textSub, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "inherit" }}>TREND</span>
             <div className="ml-auto flex items-center gap-3">
               <div className="flex items-center gap-1">
-                <div style={{ width: 8, height: 3, borderRadius: 2, background: "#BC6C8A" }} />
+                <div style={{ width: 8, height: 3, borderRadius: 2, background: C.rose }} />
                 <span style={{ color: C.textMuted, fontSize: 8, fontFamily: "inherit" }}>SYS</span>
               </div>
               <div className="flex items-center gap-1">
-                <div style={{ width: 8, height: 3, borderRadius: 2, background: "#7B9ACC" }} />
+                <div style={{ width: 8, height: 3, borderRadius: 2, background: C.blue }} />
                 <span style={{ color: C.textMuted, fontSize: 8, fontFamily: "inherit" }}>DIA</span>
               </div>
             </div>
@@ -346,7 +363,7 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
                 minHeight: L.touch,
                 background: C.primary,
                 border: `1px solid ${C.primaryBorder}`,
-                color: "#111820",
+                color: C.text,
                 fontSize: T.bodySm,
                 fontWeight: 700,
                 fontFamily: "inherit",
@@ -490,7 +507,7 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
                   minHeight: L.touch,
                   background: systolic && diastolic ? C.primary : C.borderLight,
                   border: `1px solid ${C.primaryBorder}`,
-                  color: systolic && diastolic ? "#111820" : C.textMuted,
+                  color: systolic && diastolic ? C.text : C.textMuted,
                   fontSize: T.bodySm,
                   fontWeight: 700,
                   fontFamily: "inherit",

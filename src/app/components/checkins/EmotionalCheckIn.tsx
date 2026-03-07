@@ -10,7 +10,7 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Heart, X, CheckCircle, AlertTriangle,
   Frown, Meh, Smile, CloudRain, Shield,
@@ -31,7 +31,7 @@ interface EmotionOption {
 
 const EMOTIONS: EmotionOption[] = [
   { id: "worried",    label: "Worried",     icon: CloudRain, color: "#7C5A35", bgColor: "rgba(163,120,78,0.10)" },
-  { id: "anxious",    label: "Anxious",     icon: Frown,     color: "#9B5940", bgColor: "rgba(217,165,150,0.12)" },
+  { id: "anxious",    label: "Anxious",     icon: Frown,     color: C.terracottaDark, bgColor: C.terracottaLight },
   { id: "frustrated", label: "Frustrated",  icon: Frown,     color: C.error,   bgColor: "rgba(188,108,37,0.10)" },
   { id: "neutral",    label: "Neutral",     icon: Meh,       color: C.secondary, bgColor: C.secondaryLight },
   { id: "calm",       label: "Calm",        icon: Shield,    color: C.tealDark, bgColor: C.tealLight },
@@ -432,7 +432,7 @@ export function EmotionalCheckIn({ triggerType, triggerDetail, onClose }: Emotio
                   minHeight:  L.touch,
                   background: coping ? C.primary : C.locked,
                   border:     `1px solid ${coping ? C.primaryBorder : C.border}`,
-                  color:      coping ? "#111820" : C.textMuted,
+                  color:      coping ? C.text : C.textMuted,
                   fontSize:   T.body,
                   fontWeight: 700,
                   fontFamily: "inherit",

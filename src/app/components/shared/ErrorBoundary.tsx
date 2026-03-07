@@ -1,4 +1,4 @@
-import { Component, type ReactNode } from "react";
+import React, { Component, type ReactNode } from "react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { C, T, L } from "../../design/tokens";
 

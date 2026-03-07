@@ -13,7 +13,7 @@
  *   - Visual progress rings and celebration state
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Target,
   Plus,
@@ -436,7 +436,7 @@ function GoalCard({
   );
 }
 
-// ── Create Goal Modal ──────────────��─────────────────────────────────────────
+// ── Create Goal Modal ───────────────────────────────────────────────────────
 function CreateGoalModal({
   onClose,
   onCreate,

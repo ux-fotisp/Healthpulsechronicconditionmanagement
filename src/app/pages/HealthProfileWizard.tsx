@@ -12,7 +12,7 @@
  *   • All touch targets: 56px min height
  */
 
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import {
   ChevronLeft, ChevronRight, Heart, Activity, Wind,
@@ -278,7 +278,7 @@ function TapCard({
         }}
         aria-hidden="true"
       >
-        {selected && <Check size={14} color="#FFFFFF" />}
+        {selected && <Check size={14} color={MF_C.textOnDark} />}
       </div>
     </button>
   );

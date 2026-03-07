@@ -1,14 +1,4 @@
-/**
- * HealthPulse · StatusBadge
- * WCAG Rule: Status is NEVER communicated by color alone.
- * Always: color + icon + text label together.
- *
- * Tokens:
- *   Positive → Success #B5C99A icon · #3D6B4F text
- *   Alert    → Ochre   #D4A373 icon · #92400E text
- *   Neutral  → Slate   #64748B icon · #475569 text
- */
-
+import React from "react";
 import { CheckCircle, AlertTriangle, CircleAlert, Clock, CircleX } from "lucide-react";
 import { C } from "../../design/tokens";
 

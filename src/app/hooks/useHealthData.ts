@@ -72,14 +72,15 @@ function useSeededQuery<T>(fetcher: () => Promise<T>): UseQueryResult<T> {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const stableFetcher = useCallback(fetcher, []);
+  const fetcherRef = useRef(fetcher);
+  fetcherRef.current = fetcher;
 
   const execute = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       await ensureSeeded();
-      const result = await stableFetcher();
+      const result = await fetcherRef.current();
       setData(result);
     } catch (e: any) {
       console.error("[useSeededQuery]", e.message);
@@ -87,7 +88,7 @@ function useSeededQuery<T>(fetcher: () => Promise<T>): UseQueryResult<T> {
     } finally {
       setLoading(false);
     }
-  }, [stableFetcher]);
+  }, []);
 
   useEffect(() => {
     execute();

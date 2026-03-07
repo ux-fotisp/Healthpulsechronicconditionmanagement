@@ -10,7 +10,7 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Sun, Moon, Zap, Heart, Frown, Smile, Meh,
   CheckCircle, ChevronRight, ThermometerSun,
@@ -413,7 +413,7 @@ export function DailyCheckIn() {
             className="w-full mt-4 rounded-xl flex items-center justify-center gap-2 transition-all"
             style={{
               background:  C.primary,
-              color:       "#111820",
+              color:       C.text,
               fontSize:    T.body,
               fontWeight:  700,
               fontFamily:  "inherit",
@@ -476,7 +476,7 @@ export function DailyCheckIn() {
 
         <div className="px-5 py-4">
           <ScaleSelector label="Energy level" icon={Zap} value={energy} onChange={setEnergy} labels={ENERGY_LABELS} iconColor={C.alert} />
-          <ScaleSelector label="Sleep quality" icon={Moon} value={sleep} onChange={setSleep} labels={SLEEP_LABELS} iconColor="#7C9A92" />
+          <ScaleSelector label="Sleep quality" icon={Moon} value={sleep} onChange={setSleep} labels={SLEEP_LABELS} iconColor={C.teal} />
           <ScaleSelector label="Mood" icon={MoodIcon} value={mood} onChange={setMood} labels={MOOD_LABELS} iconColor={C.purple} />
 
           {/* Pain scale (0-10 compressed to 1-5) */}
@@ -508,7 +508,7 @@ export function DailyCheckIn() {
                 minHeight:  L.touch,
                 background: (energy > 0 && sleep > 0 && mood > 0) ? C.primary : C.locked,
                 border:     `1px solid ${(energy > 0 && sleep > 0 && mood > 0) ? C.primaryBorder : C.border}`,
-                color:      (energy > 0 && sleep > 0 && mood > 0) ? "#111820" : C.textMuted,
+                color:      (energy > 0 && sleep > 0 && mood > 0) ? C.text : C.textMuted,
                 fontSize:   T.body,
                 fontWeight: 700,
                 fontFamily: "inherit",
@@ -634,7 +634,7 @@ export function DailyCheckIn() {
                 minHeight:  L.touch,
                 background: C.primary,
                 border:     `1px solid ${C.primaryBorder}`,
-                color:      "#111820",
+                color:      C.text,
                 fontSize:   T.body,
                 fontWeight: 700,
                 fontFamily: "inherit",
@@ -785,7 +785,7 @@ export function DailyCheckIn() {
               minHeight:  L.touch,
               background: C.primary,
               border:     `1px solid ${C.primaryBorder}`,
-              color:      "#111820",
+              color:      C.text,
               fontSize:   T.body,
               fontWeight: 700,
               fontFamily: "inherit",

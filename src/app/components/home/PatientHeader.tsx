@@ -21,7 +21,7 @@ export function PatientHeader() {
   return (
     <div
       style={{
-        background:   "linear-gradient(145deg, #111820 0%, #1A2B1C 100%)",
+        background:   C.shellGradient,
         borderBottom: `1px solid rgba(142,175,157,0.18)`,
       }}
       className="px-4 pt-10 pb-4"
@@ -157,7 +157,7 @@ export function PatientHeader() {
             aria-label="Edit patient profile"
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.background = C.primary;
-              (e.currentTarget as HTMLButtonElement).style.color = "#111820";
+              (e.currentTarget as HTMLButtonElement).style.color = C.shell;
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.background = "rgba(142,175,157,0.12)";

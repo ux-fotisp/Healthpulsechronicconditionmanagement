@@ -29,7 +29,7 @@ interface MedicationEditorProps {
 const ROUTES = ["Oral", "Sublingual", "Topical", "Injection", "Inhaled", "Rectal"];
 const FREQUENCIES = ["Once daily", "Twice daily", "Three times daily", "Every 8 hours", "Every 12 hours", "As needed", "Weekly"];
 const SHAPES: ("round" | "oval" | "capsule" | "oblong")[] = ["round", "oval", "capsule", "oblong"];
-const COLORS = ["#9DBB9B", "#BC6C8A", "#7B9ACC", "#C4A87A", "#D4A373", "#9B6BB5", "#5BA4A4"];
+const COLORS = [C.sage, C.rose, C.blue, "#C4A87A", C.alert, C.purple, "#5BA4A4"];
 
 export function MedicationEditor({ onClose, medications, patientAge, onSuccess }: MedicationEditorProps) {
   const [changeType, setChangeType] = useState<ChangeType | null>(null);
@@ -378,7 +378,7 @@ export function MedicationEditor({ onClose, medications, patientAge, onSuccess }
                 minHeight: L.touch,
                 background: newName && newDosage && reason ? C.primary : C.borderLight,
                 border: `1px solid ${C.primaryBorder}`,
-                color: newName && newDosage && reason ? "#111820" : C.textMuted,
+                color: newName && newDosage && reason ? C.text : C.textMuted,
                 fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit",
               }}
               aria-label="Submit medication addition"
@@ -446,7 +446,7 @@ export function MedicationEditor({ onClose, medications, patientAge, onSuccess }
                 minHeight: L.touch,
                 background: editDosage && reason ? C.primary : C.borderLight,
                 border: `1px solid ${C.primaryBorder}`,
-                color: editDosage && reason ? "#111820" : C.textMuted,
+                color: editDosage && reason ? C.text : C.textMuted,
                 fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit",
               }}
             >
@@ -542,7 +542,7 @@ export function MedicationEditor({ onClose, medications, patientAge, onSuccess }
                 minHeight: L.touch,
                 background: C.primary,
                 border: `1px solid ${C.primaryBorder}`,
-                color: "#111820",
+                color: C.text,
                 fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit",
               }}
             >

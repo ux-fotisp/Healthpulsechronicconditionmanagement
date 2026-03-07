@@ -33,8 +33,8 @@ export const MF_C = {
   // Background — Soft Alabaster (anti-glare, low-stimulus)
   bg:             "#FBFBFB",
   surface:        "#FFFFFF",   // card surfaces over alabaster
-  shell:          "#111820",   // dark app frame (inherited)
-  nav:            "#0D1A0E",   // bottom nav frame
+  shell:          "#4A4D4C",   // warm charcoal app frame
+  nav:            "#3A3D3C",   // sidebar/bottom nav frame
 
   // Warning / Refill — Deepened Ochre
   // Contrast vs #FBFBFB: 4.65:1 ✓ WCAG AA

@@ -146,7 +146,7 @@ export function ReminderModal({ medication, onClose, onLogDose, onSnooze }: Remi
             style={{
               background: C.primary,
               border:     "1px solid rgba(142,175,157,0.4)",
-              color:      "#111820",
+              color:      C.text,
               fontSize:   T.body,
               fontWeight: 700,
               fontFamily: "inherit",

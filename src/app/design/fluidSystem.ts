@@ -98,8 +98,8 @@ export const FL_C = {
   surface:        "#FFFFFF",
 
   // ── Shell (dark app frame)
-  shell:          "#111820",
-  nav:            "#0D1A0E",
+  shell:          "#4A4D4C",
+  nav:            "#3A3D3C",
 
   // ── Borders
   border:         "#CBD5E1",

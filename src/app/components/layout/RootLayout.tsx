@@ -12,6 +12,7 @@ import { BottomNav } from "./BottomNav";
 import { SideNav } from "./SideNav";
 import { useBreakpoint } from "../../hooks/useBreakpoint";
 import { ErrorBoundary } from "../shared/ErrorBoundary";
+import { C } from "../../design/tokens";
 
 export function RootLayout() {
   const { isMobile } = useBreakpoint();
@@ -21,14 +22,14 @@ export function RootLayout() {
     return (
       <div
         className="flex flex-col min-h-screen"
-        style={{ background: "#111820" }}
+        style={{ background: C.shell }}
       >
         <a href="#main-content" className="hp-skip-link">
           Skip to main content
         </a>
         <div
           className="relative mx-auto w-full"
-          style={{ maxWidth: 430, minHeight: "100svh", background: "#111820" }}
+          style={{ maxWidth: 430, minHeight: "100svh", background: C.shell }}
         >
           <main
             className="overflow-y-auto"
@@ -53,7 +54,7 @@ export function RootLayout() {
       style={{
         display:        "flex",
         minHeight:      "100svh",
-        background:     "#111820",
+        background:     C.shell,
       }}
     >
       <a href="#main-content" className="hp-skip-link">
@@ -67,7 +68,7 @@ export function RootLayout() {
           flex:       1,
           overflowY:  "auto",
           minHeight:  "100svh",
-          background: "#111820",
+          background: C.shell,
         }}
         id="main-content"
         aria-label="HealthPulse main content"
@@ -82,7 +83,9 @@ export function RootLayout() {
           }}
         >
           <ErrorBoundary>
-            <Outlet />
+            <div className="min-h-full rounded-2xl" style={{ background: C.bg }}>
+              <Outlet />
+            </div>
           </ErrorBoundary>
         </div>
       </main>

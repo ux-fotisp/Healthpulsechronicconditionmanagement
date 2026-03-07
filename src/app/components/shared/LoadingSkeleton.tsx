@@ -61,7 +61,7 @@ export function PageSkeleton({
   cardCount?: number;
   dark?: boolean;
 }) {
-  const bg = dark ? "#1A2B1C" : C.bg;
+  const bg = dark ? C.shellAlt : C.bg;
   return (
     <div style={{ background: bg, minHeight: "100vh" }}>
       {/* Header skeleton */}
@@ -107,7 +107,7 @@ export function DashboardSkeleton() {
       <div
         className="px-4 pt-10 pb-4"
         style={{
-          background: "linear-gradient(145deg, #111820 0%, #1A2B1C 100%)",
+          background: C.shellGradient,
           borderBottom: "1px solid rgba(142,175,157,0.18)",
         }}
       >

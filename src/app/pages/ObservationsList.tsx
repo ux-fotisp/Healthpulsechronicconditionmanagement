@@ -1,16 +1,9 @@
-import {
-  Heart,
-  ChevronLeft,
-  Activity,
-  Droplets,
-  Scale,
-  Wind,
-  CheckCircle,
-  AlertTriangle,
-  CircleAlert,
-} from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import {
+  Heart, Activity, Droplets, Scale, Wind,
+  CheckCircle, AlertTriangle, CircleAlert, ChevronLeft,
+} from "lucide-react";
 import { useObservations, useObservationTrends, useLogObservation } from "../hooks/useHealthData";
 import { hydrateObservations, hydrateObservationTrends, formatDateTime, getObservationTrend as findTrend, type Observation, type ObservationTrend } from "../data/helpers";
 import { StatusBadge } from "../components/shared/StatusBadge";

@@ -204,7 +204,7 @@ export function LatestVitalCard() {
             className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
             style={{
               background:  C.primary,
-              color:       "#111820",
+              color:       C.text,
               fontSize:    T.bodySm,
               fontWeight:  700,
               letterSpacing: "0.02em",

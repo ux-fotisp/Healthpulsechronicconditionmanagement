@@ -4,6 +4,7 @@
  * Typography: BodyL 18px data, Caption 14px meta
  */
 
+import React from "react";
 import { Pill, Heart, ClipboardList, Calendar, CheckCircle, CircleX, AlertTriangle } from "lucide-react";
 import { useDashboardContext } from "../../hooks/DashboardContext";
 import { getTimelineEntries, formatDateTime, type TimelineEntry } from "../../data/helpers";

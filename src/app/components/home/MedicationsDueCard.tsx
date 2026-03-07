@@ -158,7 +158,7 @@ function MedRow({
             className="w-full rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
             style={{
               background:    C.primary,
-              color:         "#111820",
+              color:         C.text,
               fontSize:      T.body,        /* 18px — action button */
               fontWeight:    700,
               letterSpacing: "0.01em",

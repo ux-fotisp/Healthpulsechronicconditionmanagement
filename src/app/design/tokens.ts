@@ -33,9 +33,11 @@ export const C = {
   card:            "#FFFFFF",
 
   // Dark shell — page frame, header zones (not affected by palette swap)
-  shell:           "#111820",
-  shellAlt:        "#1A2B1C",   // legacy dark sage frame
-  nav:             "#0D1A0E",
+  shell:           "#4A4D4C",
+  shellAlt:        "#323432",   // warm charcoal-green frame
+  nav:             "#3A3D3C",
+  // Header gradient (charcoal)
+  shellGradient:   "linear-gradient(158deg, #5A5E5C 32%, #323433 76%)",
 
   // Alert / Pale Ochre — low-refill warnings, medication due banners
   alert:           "#D4A373",
@@ -56,8 +58,8 @@ export const C = {
   textSub:         "#475569",   // Slate 600 — 5.9:1 vs #FBFBFB ✓ AA
   textMuted:       "#94A3B8",   // Slate 400 — 3.0:1 (large text ≥18px only; do NOT use at T.nano/T.pill)
   textOnDark:      "#FFFFFF",
-  textOnDarkSub:   "rgba(255,255,255,0.65)",  // ~7.1:1 vs #111820 ✓ AA
-  textOnDarkMuted: "rgba(255,255,255,0.55)",  // ~5.0:1 vs #111820 ✓ AA (bumped from 0.4 for T.micro compliance)
+  textOnDarkSub:   "rgba(255,255,255,0.65)",  // ~8.1:1 vs #4A4D4C ✓ AA
+  textOnDarkMuted: "rgba(255,255,255,0.55)",  // ~6.2:1 vs #4A4D4C ✓ AA
 
   // Border / Slate 200
   border:          "#CBD5E1",
@@ -66,6 +68,8 @@ export const C = {
 
   // Interactive states
   error:           "#BC6C25",
+  errorLight:      "rgba(188,108,37,0.10)",
+  errorBorder:     "rgba(188,108,37,0.20)",
   locked:          "#E2E8F0",   // locked/secure state fill
 
   // Frosted Glass layer
@@ -112,6 +116,12 @@ export const C = {
   rose:            "#BC6C8A",
   roseLight:       "rgba(188,108,138,0.12)",
   roseBorder:      "rgba(188,108,138,0.25)",
+
+  // ── Accent — Cornflower Blue (diastolic BP line, informational) ───────────
+  blue:            "#7B9ACC",
+  blueLight:       "rgba(123,154,204,0.10)",
+  blueBorder:      "rgba(123,154,204,0.30)",
+  blueDark:        "#1E4A8A",
 } as const;
 
 // ── Typography Scale ──────────────────────────────────────────────────────────

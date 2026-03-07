@@ -158,7 +158,7 @@ function MedicationActiveState({
           className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
           style={{
             background:    C.primary,
-            color:         "#111820",
+            color:         C.text,
             fontSize:      T.bodySm,
             fontWeight:    700,
             letterSpacing: "0.02em",
@@ -249,7 +249,7 @@ function AppointmentActiveState({
           minHeight:  L.touch,
         }}
         aria-label="View appointment details"
-        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primary; (e.currentTarget as HTMLButtonElement).style.color = "#111820"; }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primary; (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
       >
         <Calendar size={15} />

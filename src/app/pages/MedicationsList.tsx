@@ -165,7 +165,7 @@ function ActiveMedCard({
             className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all"
             style={{
               background: C.primary,
-              color:      "#111820",
+              color:      C.text,
               fontSize:   T.caption,
               fontWeight: 700,
               border:     "1px solid rgba(142,175,157,0.4)",
@@ -299,7 +299,7 @@ export function MedicationsList() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 p-4">
+      <div className="flex flex-col gap-4 p-[16px] m-[8px] rounded-2xl" style={{ background: "var(--hp-shell-2)" }}>
         {/* Active */}
         <div>
           <div className="flex items-center gap-2 mb-3 px-1">

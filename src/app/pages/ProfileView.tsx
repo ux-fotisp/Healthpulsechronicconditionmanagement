@@ -1,44 +1,39 @@
+import React from "react";
 import { useNavigate } from "react-router";
 import { ChevronLeft, ChevronRight, Pencil, User, Shield, Phone, Mail, Globe, Activity, ClipboardList, ShieldCheck, Bell } from "lucide-react";
 import { usePatient, useCarePlanPrefs, useUpdateCarePlanPrefs } from "../hooks/useHealthData";
 import { getPatientAge, type Patient } from "../data/helpers";
 import { PageSkeleton } from "../components/shared/LoadingSkeleton";
 import { toast } from "sonner";
+import { C, T, L } from "../design/tokens";
 
 /**
  * ProfileView — Patient Identity Record
  * ═══════════════════════════════════════
  * WCAG 2.1 AA compliant · Muted Healing Palette · Montserrat
- *
- * Contrast audit (all on #FBFBFB):
- *   #1E293B  → 12.6:1 ✓ AAA  (headings, strong text)
- *   #475569  →  5.9:1 ✓ AA   (body text)
- *   #64748B  →  4.6:1 ✓ AA   (secondary labels — large text OK)
- *   #3D6B4F  →  6.2:1 ✓ AA   (condition badges)
- *
- * Font floors: 14px caption min, 18px body, 56px touch targets
+ * Token-driven: all colors via C.*, font sizes via T.*, spacing via L.*
  */
 
 const cardStyle = {
-  background: "#FFFFFF",
-  border: "1px solid #CBD5E1",
-  borderRadius: 16,
+  background: C.card,
+  border: `1px solid ${C.border}`,
+  borderRadius: L.rLg,
   overflow: "hidden" as const,
 };
 
 const labelStyle = {
-  color: "#475569",          // 5.9:1 on #FFFFFF ✓ AA
-  fontSize: 14,              // caption minimum
+  color: C.textSub,
+  fontSize: T.caption,
   fontWeight: 600 as const,
   letterSpacing: "0.04em",
-  fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+  fontFamily: T.family,
 };
 
 const valueStyle = {
-  color: "#1E293B",          // 12.6:1 on #FFFFFF ✓ AAA
-  fontSize: 18,              // body L
+  color: C.text,
+  fontSize: T.body,
   fontWeight: 500 as const,
-  fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+  fontFamily: T.family,
   marginTop: 2,
   lineHeight: 1.5,
 };
@@ -55,7 +50,7 @@ function InfoRow({
   return (
     <div
       className="flex items-start gap-3 px-5 py-4"
-      style={{ borderBottom: "1px solid #CBD5E1" }}
+      style={{ borderBottom: `1px solid ${C.border}` }}
     >
       <div
         style={{
@@ -65,13 +60,13 @@ function InfoRow({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "rgba(142,175,157,0.10)",
-          borderRadius: 8,
+          background: C.primaryLight,
+          borderRadius: L.rSm,
           flexShrink: 0,
         }}
         aria-hidden="true"
       >
-        <Icon size={16} color="#475569" />
+        <Icon size={16} color={C.textSub} />
       </div>
       <div>
         <p style={labelStyle}>{label.toUpperCase()}</p>
@@ -120,21 +115,21 @@ export function ProfileView() {
   };
 
   return (
-    <div style={{ background: "#FBFBFB", minHeight: "100vh" }}>
+    <div style={{ background: C.bg, minHeight: "100vh" }}>
       {/* Top bar */}
       <div
         className="flex items-center gap-3 px-4 pt-10 pb-4"
-        style={{ borderBottom: "1px solid #CBD5E1" }}
+        style={{ borderBottom: `1px solid ${C.border}` }}
       >
         <button
           onClick={() => navigate("/")}
           className="flex items-center justify-center rounded-xl"
           style={{
-            width: 56,
-            height: 56,               // 56px touch target ✓
-            background: "#FFFFFF",
-            border: "1px solid #CBD5E1",
-            color: "#1E293B",
+            width: L.touch,
+            height: L.touch,
+            background: C.card,
+            border: `1px solid ${C.border}`,
+            color: C.text,
             cursor: "pointer",
           }}
           aria-label="Go back to home"
@@ -144,10 +139,10 @@ export function ProfileView() {
         <div>
           <h1
             style={{
-              color: "#1E293B",
-              fontSize: 22,
+              color: C.text,
+              fontSize: T.h2,
               fontWeight: 700,
-              fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+              fontFamily: T.family,
               margin: 0,
             }}
           >
@@ -155,9 +150,9 @@ export function ProfileView() {
           </h1>
           <p
             style={{
-              color: "#475569",      // 5.9:1 ✓ AA
-              fontSize: 14,
-              fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+              color: C.textSub,
+              fontSize: T.caption,
+              fontFamily: T.family,
               margin: 0,
             }}
           >
@@ -167,23 +162,23 @@ export function ProfileView() {
         <button
           className="ml-auto flex items-center gap-2 rounded-xl px-4 transition-all duration-200"
           style={{
-            background: "rgba(142,175,157,0.12)",
-            border: "1px solid rgba(142,175,157,0.35)",
-            color: "#1E293B",
-            fontSize: 16,
+            background: C.primaryLight,
+            border: `1px solid ${C.primaryBorder}`,
+            color: C.text,
+            fontSize: T.bodyMd + 1,
             fontWeight: 600,
-            fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+            fontFamily: T.family,
             minHeight: 48,
             cursor: "pointer",
           }}
           aria-label="Edit profile"
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#8EAF9D";
-            (e.currentTarget as HTMLButtonElement).style.color = "#1E293B";
+            (e.currentTarget as HTMLButtonElement).style.background = C.primary;
+            (e.currentTarget as HTMLButtonElement).style.color = C.text;
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(142,175,157,0.12)";
-            (e.currentTarget as HTMLButtonElement).style.color = "#1E293B";
+            (e.currentTarget as HTMLButtonElement).style.background = C.primaryLight;
+            (e.currentTarget as HTMLButtonElement).style.color = C.text;
           }}
         >
           <Pencil size={14} />
@@ -202,21 +197,21 @@ export function ProfileView() {
             style={{
               width: 72,
               height: 72,
-              background: "linear-gradient(135deg, #8EAF9D 0%, #7A9D8C 100%)",
-              border: "2px solid rgba(142,175,157,0.4)",
+              background: `linear-gradient(135deg, ${C.primary} 0%, ${C.primaryDark} 100%)`,
+              border: `2px solid ${C.primaryBorder}`,
               flexShrink: 0,
             }}
           >
-            <User size={32} color="#FFFFFF" />
+            <User size={32} color={C.textOnDark} />
           </div>
           <div style={{ minWidth: 0 }}>
             <h2
               style={{
-                color: "#1E293B",
-                fontSize: 22,
+                color: C.text,
+                fontSize: T.h2,
                 fontWeight: 700,
                 letterSpacing: "-0.02em",
-                fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                fontFamily: T.family,
                 margin: 0,
               }}
             >
@@ -224,21 +219,21 @@ export function ProfileView() {
             </h2>
             <p
               style={{
-                color: "#475569",       // 5.9:1 ✓ AA
-                fontSize: 16,
-                fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                color: C.textSub,
+                fontSize: T.bodyMd + 1,
+                fontFamily: T.family,
                 marginTop: 4,
               }}
             >
               {age} years · {patient.gender}
             </p>
             <div className="flex items-center gap-2 mt-2">
-              <Shield size={14} color="#64748B" />
+              <Shield size={14} color={C.secondary} />
               <span
                 style={{
-                  color: "#64748B",     // 4.6:1 ✓ AA (large text)
-                  fontSize: 14,
-                  fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                  color: C.secondary,
+                  fontSize: T.caption,
+                  fontFamily: T.family,
                   fontWeight: 500,
                   letterSpacing: "0.02em",
                 }}
@@ -253,13 +248,13 @@ export function ProfileView() {
                   style={{
                     background: "rgba(61,107,79,0.08)",
                     border: "1px solid rgba(61,107,79,0.20)",
-                    color: "#3D6B4F",       // 6.2:1 ✓ AA
-                    fontSize: 14,           // caption min
+                    color: C.successDark,
+                    fontSize: T.caption,
                     fontWeight: 600,
                     padding: "4px 10px",
-                    borderRadius: 100,
+                    borderRadius: L.rFull,
                     letterSpacing: "0.02em",
-                    fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                    fontFamily: T.family,
                   }}
                 >
                   {c.toUpperCase()}
@@ -274,8 +269,8 @@ export function ProfileView() {
           <div
             className="px-5 py-3"
             style={{
-              borderBottom: "1px solid #CBD5E1",
-              background: "rgba(142,175,157,0.06)",
+              borderBottom: `1px solid ${C.border}`,
+              background: C.primaryLight,
             }}
           >
             <p style={labelStyle}>CONTACT INFORMATION</p>
@@ -290,8 +285,8 @@ export function ProfileView() {
           <div
             className="px-5 py-3"
             style={{
-              borderBottom: "1px solid #CBD5E1",
-              background: "rgba(142,175,157,0.06)",
+              borderBottom: `1px solid ${C.border}`,
+              background: C.primaryLight,
             }}
           >
             <p style={labelStyle}>CLINICAL DETAILS</p>
@@ -308,12 +303,12 @@ export function ProfileView() {
                   style={{
                     background: "rgba(61,107,79,0.08)",
                     border: "1px solid rgba(61,107,79,0.20)",
-                    color: "#3D6B4F",        // 6.2:1 ✓ AA
-                    fontSize: 16,
+                    color: C.successDark,
+                    fontSize: T.bodyMd + 1,
                     fontWeight: 500,
                     padding: "6px 14px",
                     borderRadius: 10,
-                    fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                    fontFamily: T.family,
                   }}
                 >
                   {c}
@@ -329,10 +324,10 @@ export function ProfileView() {
           className="w-full rounded-2xl overflow-hidden flex items-center gap-3 px-5 py-4 transition-all"
           style={{
             background: "rgba(142,175,157,0.08)",
-            border: "1px solid rgba(142,175,157,0.30)",
+            border: `1px solid ${C.primaryBorder}`,
             cursor: "pointer",
             textAlign: "left",
-            minHeight: 56,        // touch target ✓
+            minHeight: L.touch,
           }}
           aria-label="Complete your health profile"
           onMouseEnter={(e) => {
@@ -347,20 +342,20 @@ export function ProfileView() {
             style={{
               width: 48,
               height: 48,
-              background: "rgba(142,175,157,0.12)",
-              border: "1px solid rgba(142,175,157,0.30)",
+              background: C.primaryLight,
+              border: `1px solid ${C.primaryBorder}`,
             }}
             aria-hidden="true"
           >
-            <ClipboardList size={22} color="#3D6B4F" />
+            <ClipboardList size={22} color={C.successDark} />
           </div>
           <div className="flex-1">
             <p
               style={{
-                color: "#1E293B",         // 12.6:1 ✓ AAA
-                fontSize: 18,
+                color: C.text,
+                fontSize: T.body,
                 fontWeight: 700,
-                fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                fontFamily: T.family,
                 margin: 0,
               }}
             >
@@ -368,16 +363,16 @@ export function ProfileView() {
             </p>
             <p
               style={{
-                color: "#475569",         // 5.9:1 ✓ AA
-                fontSize: 14,
-                fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                color: C.textSub,
+                fontSize: T.caption,
+                fontFamily: T.family,
                 marginTop: 2,
               }}
             >
               Step-by-step medical history setup
             </p>
           </div>
-          <ChevronRight size={18} color="#64748B" />
+          <ChevronRight size={18} color={C.secondary} />
         </button>
 
         {/* ── Care Plan Preferences (Sprint 7) ──────────────────────── */}
@@ -385,21 +380,21 @@ export function ProfileView() {
           <div
             className="px-5 py-3 flex items-center gap-2"
             style={{
-              borderBottom: "1px solid #CBD5E1",
+              borderBottom: `1px solid ${C.border}`,
               background: "rgba(196,168,122,0.06)",
             }}
           >
-            <ShieldCheck size={14} color="#7A6230" />
-            <p style={{ ...labelStyle, color: "#7A6230" }}>CARE PLAN PREFERENCES</p>
+            <ShieldCheck size={14} color={C.amberDark} />
+            <p style={{ ...labelStyle, color: C.amberDark }}>CARE PLAN PREFERENCES</p>
           </div>
 
           {/* Doctor approval toggle */}
-          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid #CBD5E1" }}>
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${C.border}` }}>
             <div className="flex-1 min-w-0">
-              <p style={{ color: "#1E293B", fontSize: 16, fontWeight: 600, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif" }}>
+              <p style={{ color: C.text, fontSize: T.bodyMd + 1, fontWeight: 600, fontFamily: T.family }}>
                 Require doctor approval
               </p>
-              <p style={{ color: "#475569", fontSize: 14, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif", marginTop: 2 }}>
+              <p style={{ color: C.textSub, fontSize: T.caption, fontFamily: T.family, marginTop: 2 }}>
                 Medication changes need your doctor's OK
               </p>
             </div>
@@ -410,7 +405,7 @@ export function ProfileView() {
               style={{
                 width: 52,
                 height: 32,
-                background: prefs?.requireDoctorApproval ? "#8EAF9D" : "#CBD5E1",
+                background: prefs?.requireDoctorApproval ? C.primary : C.border,
                 border: "none",
                 cursor: "pointer",
                 position: "relative",
@@ -425,7 +420,7 @@ export function ProfileView() {
                 style={{
                   width: 26,
                   height: 26,
-                  background: "#FFFFFF",
+                  background: C.card,
                   position: "absolute",
                   top: 3,
                   left: prefs?.requireDoctorApproval ? 23 : 3,
@@ -437,12 +432,12 @@ export function ProfileView() {
           </div>
 
           {/* Age threshold */}
-          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid #CBD5E1" }}>
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${C.border}` }}>
             <div>
-              <p style={{ color: "#1E293B", fontSize: 16, fontWeight: 600, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif" }}>
+              <p style={{ color: C.text, fontSize: T.bodyMd + 1, fontWeight: 600, fontFamily: T.family }}>
                 Age threshold
               </p>
-              <p style={{ color: "#475569", fontSize: 14, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif", marginTop: 2 }}>
+              <p style={{ color: C.textSub, fontSize: T.caption, fontFamily: T.family, marginTop: 2 }}>
                 Auto-enable approval above this age
               </p>
             </div>
@@ -452,10 +447,10 @@ export function ProfileView() {
                 className="rounded-lg flex items-center justify-center"
                 style={{
                   width: 36, height: 36,
-                  background: "rgba(142,175,157,0.12)",
-                  border: "1px solid rgba(142,175,157,0.3)",
-                  color: "#1E293B",
-                  fontSize: 18,
+                  background: C.primaryLight,
+                  border: `1px solid ${C.primaryBorder}`,
+                  color: C.text,
+                  fontSize: T.body,
                   fontWeight: 700,
                   cursor: "pointer",
                 }}
@@ -464,10 +459,10 @@ export function ProfileView() {
                 &minus;
               </button>
               <span style={{
-                color: "#1E293B",
+                color: C.text,
                 fontSize: 20,
                 fontWeight: 800,
-                fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                fontFamily: T.family,
                 minWidth: 32,
                 textAlign: "center",
               }}>
@@ -478,10 +473,10 @@ export function ProfileView() {
                 className="rounded-lg flex items-center justify-center"
                 style={{
                   width: 36, height: 36,
-                  background: "rgba(142,175,157,0.12)",
-                  border: "1px solid rgba(142,175,157,0.3)",
-                  color: "#1E293B",
-                  fontSize: 18,
+                  background: C.primaryLight,
+                  border: `1px solid ${C.primaryBorder}`,
+                  color: C.text,
+                  fontSize: T.body,
                   fontWeight: 700,
                   cursor: "pointer",
                 }}
@@ -495,8 +490,8 @@ export function ProfileView() {
           {/* Notification preference */}
           <div className="px-5 py-4">
             <div className="flex items-center gap-2 mb-3">
-              <Bell size={14} color="#64748B" />
-              <p style={{ color: "#475569", fontSize: 14, fontWeight: 600, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif" }}>
+              <Bell size={14} color={C.secondary} />
+              <p style={{ color: C.textSub, fontSize: T.caption, fontWeight: 600, fontFamily: T.family }}>
                 Notification method
               </p>
             </div>
@@ -511,12 +506,12 @@ export function ProfileView() {
                   onClick={() => handleNotifChange(opt.value)}
                   className="flex-1 rounded-lg py-2.5 transition-all"
                   style={{
-                    background: prefs?.notificationPreference === opt.value ? "rgba(142,175,157,0.15)" : "#FFFFFF",
-                    border: `1px solid ${prefs?.notificationPreference === opt.value ? "#8EAF9D" : "#CBD5E1"}`,
-                    color: prefs?.notificationPreference === opt.value ? "#3D6B4F" : "#475569",
-                    fontSize: 14,
+                    background: prefs?.notificationPreference === opt.value ? "rgba(142,175,157,0.15)" : C.card,
+                    border: `1px solid ${prefs?.notificationPreference === opt.value ? C.primary : C.border}`,
+                    color: prefs?.notificationPreference === opt.value ? C.successDark : C.textSub,
+                    fontSize: T.caption,
                     fontWeight: 600,
-                    fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                    fontFamily: T.family,
                     cursor: "pointer",
                     minHeight: 44,
                   }}
@@ -530,11 +525,11 @@ export function ProfileView() {
 
           {/* Age context */}
           <div className="px-5 pb-4">
-            <div className="rounded-xl px-4 py-3" style={{ background: "rgba(142,175,157,0.06)", border: "1px solid rgba(142,175,157,0.15)" }}>
-              <p style={{ color: "#475569", fontSize: 13, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif", lineHeight: 1.5 }}>
-                Your age: <strong style={{ color: "#1E293B" }}>{age}</strong> · 
-                Threshold: <strong style={{ color: "#1E293B" }}>{prefs?.ageThreshold ?? 52}</strong> · 
-                Approval: <strong style={{ color: age >= (prefs?.ageThreshold ?? 52) ? "#92400E" : "#3D6B4F" }}>
+            <div className="rounded-xl px-4 py-3" style={{ background: C.primaryLight, border: `1px solid rgba(142,175,157,0.15)` }}>
+              <p style={{ color: C.textSub, fontSize: T.bodySm, fontFamily: T.family, lineHeight: 1.5 }}>
+                Your age: <strong style={{ color: C.text }}>{age}</strong> · 
+                Threshold: <strong style={{ color: C.text }}>{prefs?.ageThreshold ?? 52}</strong> · 
+                Approval: <strong style={{ color: age >= (prefs?.ageThreshold ?? 52) ? C.alertText : C.successDark }}>
                   {prefs?.requireDoctorApproval ? "Required" : "Not required"}
                 </strong>
               </p>

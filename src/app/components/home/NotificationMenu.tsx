@@ -11,7 +11,7 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   Bell,
   X,
@@ -341,7 +341,7 @@ export function NotificationMenu() {
               fontWeight: 800,
               fontFamily: "inherit",
               padding: "0 4px",
-              border: "2px solid #111820",
+              border: `2px solid ${C.shell}`,
               animation: pulsing ? "hp-badge-pulse 0.6s ease-in-out 3" : "none",
             }}
             aria-hidden="true"
@@ -910,7 +910,7 @@ function PreferencesView({
                   style={{
                     background: active ? C.primary : "rgba(100,116,139,0.06)",
                     border: `1px solid ${active ? C.primaryBorder : C.borderLight}`,
-                    color: active ? "#111820" : C.textSub,
+                    color: active ? C.text : C.textSub,
                     fontSize: T.caption, fontWeight: active ? 700 : 500,
                     fontFamily: "inherit", minHeight: L.touch, cursor: "pointer",
                   }}

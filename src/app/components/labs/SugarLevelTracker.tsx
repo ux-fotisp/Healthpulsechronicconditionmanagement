@@ -19,13 +19,14 @@
  * WCAG 2.1 AA · 56px touch targets · Muted Healing Palette
  */
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   X, Droplets, Plus, Utensils, Syringe, Footprints, Tag, TrendingUp,
   Clock, ChevronDown, ChevronUp, Smile, Meh, Frown, Moon, Sun, Sunset,
   Coffee, Heart, Weight, FileText, Zap, Sparkles, GraduationCap, Activity
 } from "lucide-react";
 import { C, T, L } from "../../design/tokens";
+import { SectionBanner } from "../shared/SectionBanner";
 import { toast } from "sonner";
 import { useLogGlucoseEntry } from "../../hooks/useHealthData";
 
@@ -47,7 +48,7 @@ interface GlucoseEntry {
 type GlucoseRange = "low" | "inRange" | "high" | "veryHigh" | "critical";
 
 function classifyGlucose(val: number, tag: MealTag): { range: GlucoseRange; label: string; color: string; textColor: string; bg: string } {
-  if (val < 70) return { range: "low", label: "Low", color: "#7B9ACC", textColor: "#1E4A8A", bg: "rgba(123,154,204,0.12)" };
+  if (val < 70) return { range: "low", label: "Low", color: C.blue, textColor: C.blueDark, bg: C.blueLight };
   if (tag.includes("after")) {
     if (val <= 180) return { range: "inRange", label: "In Range", color: C.success, textColor: C.successDark, bg: C.successLight };
     if (val <= 250) return { range: "high", label: "High", color: C.alert, textColor: C.alertText, bg: C.alertLight };
@@ -55,8 +56,8 @@ function classifyGlucose(val: number, tag: MealTag): { range: GlucoseRange; labe
     if (val <= 130) return { range: "inRange", label: "In Range", color: C.success, textColor: C.successDark, bg: C.successLight };
     if (val <= 180) return { range: "high", label: "High", color: C.alert, textColor: C.alertText, bg: C.alertLight };
   }
-  if (val <= 300) return { range: "veryHigh", label: "Very High", color: "#D4A373", textColor: "#92400E", bg: "rgba(212,163,115,0.15)" };
-  return { range: "critical", label: "Critical", color: C.error, textColor: "#92400E", bg: "rgba(188,108,37,0.15)" };
+  if (val <= 300) return { range: "veryHigh", label: "Very High", color: C.alert, textColor: C.alertText, bg: C.alertLight };
+  return { range: "critical", label: "Critical", color: C.error, textColor: C.alertText, bg: C.errorLight };
 }
 
 function generateDemoEntries(): GlucoseEntry[] {
@@ -134,9 +135,9 @@ function DailyTrendChart({ entries }: { entries: GlucoseEntry[] }) {
     <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} aria-label="Glucose trend chart">
       <rect x={pad} y={yScale(180)} width={w - pad * 2} height={yScale(70) - yScale(180)} fill={C.successLight} rx={4} />
       <line x1={pad} y1={yScale(180)} x2={w - pad} y2={yScale(180)} stroke={C.successBorder} strokeWidth="1" strokeDasharray="3,3" />
-      <line x1={pad} y1={yScale(70)} x2={w - pad} y2={yScale(70)} stroke="rgba(123,154,204,0.3)" strokeWidth="1" strokeDasharray="3,3" />
+      <line x1={pad} y1={yScale(70)} x2={w - pad} y2={yScale(70)} stroke={C.blueBorder} strokeWidth="1" strokeDasharray="3,3" />
       <path d={linePath} fill="none" stroke={C.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      {sorted.map((e, i) => { const cls = classifyGlucose(e.glucose, e.mealTag); return <circle key={e.id} cx={xScale(i)} cy={yScale(e.glucose)} r={3.5} fill={cls.color} stroke="#fff" strokeWidth="1" />; })}
+      {sorted.map((e, i) => { const cls = classifyGlucose(e.glucose, e.mealTag); return <circle key={e.id} cx={xScale(i)} cy={yScale(e.glucose)} r={3.5} fill={cls.color} stroke={C.card} strokeWidth="1" />; })}
     </svg>
   );
 }
@@ -144,7 +145,7 @@ function DailyTrendChart({ entries }: { entries: GlucoseEntry[] }) {
 function MoodIcon({ mood, size = 16 }: { mood: Mood; size?: number }) {
   if (mood === "great") return <Smile size={size} color={C.success} />;
   if (mood === "okay") return <Meh size={size} color={C.alert} />;
-  return <Frown size={size} color="#7B9ACC" />;
+  return <Frown size={size} color={C.blue} />;
 }
 
 interface SugarLevelTrackerProps { onClose: () => void; }
@@ -237,7 +238,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
       return { 
         title: "Learning Phase", 
         desc: "We are still finding your patterns. Logging meal tags will help us personalize your insights.", 
-        color: "#1E4A8A", bg: "rgba(123,154,204,0.12)", icon: <GraduationCap size={16} color="#1E4A8A" /> 
+        color: C.blueDark, bg: C.blueLight, icon: <GraduationCap size={16} color={C.blueDark} /> 
       };
     }
   }, [illnessStage]);
@@ -251,7 +252,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-6 pb-2">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center rounded-xl" style={{ width: 44, height: 44, background: "rgba(212,163,115,0.12)", border: "1px solid rgba(212,163,115,0.3)" }}>
+            <div className="flex items-center justify-center rounded-xl" style={{ width: 44, height: 44, background: C.alertLight, border: `1px solid ${C.alertBorder}` }}>
               <Droplets size={20} color={C.alert} />
             </div>
             <div>
@@ -265,7 +266,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
         {/* Tabs */}
         <div className="mx-5 mt-3 flex rounded-xl overflow-hidden" style={{ border: `1px solid ${C.border}` }}>
           {(["log", "trends", "stats"] as const).map((tab) => (
-            <button key={tab} onClick={() => setActiveSection(tab)} className="flex-1 transition-all" style={{ minHeight: 44, background: activeSection === tab ? C.primary : C.card, color: activeSection === tab ? "#111820" : C.textSub, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.04em", fontFamily: "inherit", textTransform: "uppercase" }} aria-pressed={activeSection === tab}>
+            <button key={tab} onClick={() => setActiveSection(tab)} className="flex-1 transition-all" style={{ minHeight: 44, background: activeSection === tab ? C.primary : C.card, color: activeSection === tab ? C.text : C.textSub, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.04em", fontFamily: "inherit", textTransform: "uppercase" }} aria-pressed={activeSection === tab}>
               {tab === "log" ? "Logbook" : tab === "trends" ? "Trends" : "Stats"}
             </button>
           ))}
@@ -299,7 +300,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
             </div>
             <div className="mt-4 rounded-2xl p-4" style={{ background: C.card, border: `1px solid ${C.border}` }}>
               <p style={{ color: C.textMuted, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "inherit", marginBottom: 12 }}>GLUCOSE DISTRIBUTION</p>
-              {(() => { const low = entries.filter((e) => e.glucose < 70).length; const inR = entries.filter((e) => e.glucose >= 70 && e.glucose <= 180).length; const high = entries.filter((e) => e.glucose > 180).length; const total = entries.length || 1; return (<div className="flex flex-col gap-2">{[{ label: "Low (<70)", pct: low / total, color: "#7B9ACC" }, { label: "In Range (70-180)", pct: inR / total, color: C.success }, { label: "High (>180)", pct: high / total, color: C.alert }].map((band) => (<div key={band.label} className="flex items-center gap-3"><div style={{ width: 8, height: 8, borderRadius: "50%", background: band.color, flexShrink: 0 }} /><span style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit", minWidth: 100 }}>{band.label}</span><div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: C.borderLight }}><div style={{ width: `${band.pct * 100}%`, height: "100%", background: band.color, borderRadius: 9999, transition: "width 0.4s ease" }} /></div><span style={{ color: C.text, fontSize: T.nano, fontWeight: 700, fontFamily: "inherit", minWidth: 28, textAlign: "right" }}>{Math.round(band.pct * 100)}%</span></div>))}</div>); })()}
+              {(() => { const low = entries.filter((e) => e.glucose < 70).length; const inR = entries.filter((e) => e.glucose >= 70 && e.glucose <= 180).length; const high = entries.filter((e) => e.glucose > 180).length; const total = entries.length || 1; return (<div className="flex flex-col gap-2">{[{ label: "Low (<70)", pct: low / total, color: C.blue }, { label: "In Range (70-180)", pct: inR / total, color: C.success }, { label: "High (>180)", pct: high / total, color: C.alert }].map((band) => (<div key={band.label} className="flex items-center gap-3"><div style={{ width: 8, height: 8, borderRadius: "50%", background: band.color, flexShrink: 0 }} /><span style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit", minWidth: 100 }}>{band.label}</span><div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: C.borderLight }}><div style={{ width: `${band.pct * 100}%`, height: "100%", background: band.color, borderRadius: 9999, transition: "width 0.4s ease" }} /></div><span style={{ color: C.text, fontSize: T.nano, fontWeight: 700, fontFamily: "inherit", minWidth: 28, textAlign: "right" }}>{Math.round(band.pct * 100)}%</span></div>))}</div>); })()}
             </div>
           </div>
         )}
@@ -307,18 +308,15 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
         {/* Trends Tab */}
         {activeSection === "trends" && (
           <div className="px-5 mt-4 pb-8">
-            <div className="mb-4 rounded-2xl p-4 flex gap-3 items-start" style={{ background: adaptiveInsight.bg, border: `1px solid ${adaptiveInsight.color}30` }}>
-              <div className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 36, height: 36, background: C.card, border: `1px solid ${adaptiveInsight.color}20` }}>
-                {adaptiveInsight.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Sparkles size={12} color={adaptiveInsight.color} />
-                  <p style={{ color: adaptiveInsight.color, fontSize: T.nano, fontWeight: 800, letterSpacing: "0.08em", fontFamily: "inherit" }}>{adaptiveInsight.title.toUpperCase()}</p>
-                </div>
-                <p style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit", lineHeight: 1.4 }}>{adaptiveInsight.desc}</p>
-              </div>
-            </div>
+            <SectionBanner
+              color={adaptiveInsight.color}
+              bg={adaptiveInsight.bg}
+              border={`${adaptiveInsight.color}30`}
+              icon={adaptiveInsight.icon}
+              title={adaptiveInsight.title}
+              desc={adaptiveInsight.desc}
+              className="mb-4"
+            />
 
             {entries.length > 0 && <div className="rounded-2xl py-5 mb-4" style={{ background: C.card, border: `1px solid ${C.border}` }}><GlucoseGauge value={entries[0].glucose} mealTag={entries[0].mealTag} /></div>}
             <div className="rounded-2xl overflow-hidden mb-4" style={{ background: C.card, border: `1px solid ${C.border}` }}>
@@ -332,7 +330,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
             <div className="rounded-2xl overflow-hidden" style={{ background: C.card, border: `1px solid ${C.border}` }}>
               <div className="px-4 py-3" style={{ borderBottom: `1px solid ${C.borderLight}` }}><span style={{ color: C.textSub, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "inherit" }}>DIABETES CORRELATIONS</span></div>
               <div className="flex flex-col">
-                {[{ icon: <Heart size={14} color="#BC6C8A" />, label: "Blood Pressure", desc: "High glucose correlates with elevated BP", trend: "Monitor both daily" }, { icon: <Weight size={14} color={C.secondary} />, label: "Weight", desc: "Weight stability supports glucose control", trend: "Weekly tracking recommended" }, { icon: <Zap size={14} color={C.alert} />, label: "Ketones", desc: "Check ketones when glucose > 250 mg/dL", trend: "Prevents DKA risk" }, { icon: <Footprints size={14} color={C.primary} />, label: "Activity", desc: "30 min exercise lowers glucose 20-40 mg/dL", trend: "Most effective post-meal" }].map((item, i) => (
+                {[{ icon: <Heart size={14} color={C.rose} />, label: "Blood Pressure", desc: "High glucose correlates with elevated BP", trend: "Monitor both daily" }, { icon: <Weight size={14} color={C.secondary} />, label: "Weight", desc: "Weight stability supports glucose control", trend: "Weekly tracking recommended" }, { icon: <Zap size={14} color={C.alert} />, label: "Ketones", desc: "Check ketones when glucose > 250 mg/dL", trend: "Prevents DKA risk" }, { icon: <Footprints size={14} color={C.primary} />, label: "Activity", desc: "30 min exercise lowers glucose 20-40 mg/dL", trend: "Most effective post-meal" }].map((item, i) => (
                   <div key={i} className="flex items-start gap-3 px-4 py-3" style={{ borderBottom: i < 3 ? `1px solid ${C.borderLight}` : "none" }}>
                     <div className="flex items-center justify-center rounded-lg flex-shrink-0 mt-0.5" style={{ width: 32, height: 32, background: C.secondaryLight }}>{item.icon}</div>
                     <div className="flex-1 min-w-0">
@@ -352,7 +350,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
           <>
             {!showInput && (
               <div className="mx-5 mt-4">
-                <button onClick={() => setShowInput(true)} className="w-full rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: C.primary, border: `1px solid ${C.primaryBorder}`, color: "#111820", fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }} aria-label="Log new glucose reading">
+                <button onClick={() => setShowInput(true)} className="w-full rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: C.primary, border: `1px solid ${C.primaryBorder}`, color: C.text, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }} aria-label="Log new glucose reading">
                   <Plus size={16} />
                   {illnessStage === "stable" ? "Quick Log Entry" : "Log Detailed Reading"}
                 </button>
@@ -394,7 +392,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
                 </div>
                 <div className="mb-4">
                   <label style={{ color: C.textSub, fontSize: T.nano, fontWeight: 600, fontFamily: "inherit" }}>Tags</label>
-                  <div className="flex flex-wrap gap-2 mt-2">{SUGAR_TAGS.map((st) => (<button key={st.value} onClick={() => toggleTag(st.value)} className="rounded-full px-3 py-2 transition-all" style={{ background: selectedTags.includes(st.value) ? (st.value === "hypo" ? "rgba(123,154,204,0.15)" : C.alertLight) : "transparent", border: `1px solid ${selectedTags.includes(st.value) ? (st.value === "hypo" ? "rgba(123,154,204,0.3)" : C.alertBorder) : C.borderLight}`, color: selectedTags.includes(st.value) ? (st.value === "hypo" ? "#1E4A8A" : C.alertText) : C.textSub, fontSize: 10, fontWeight: 600, fontFamily: "inherit" }} aria-pressed={selectedTags.includes(st.value)}>{st.label}</button>))}</div>
+                  <div className="flex flex-wrap gap-2 mt-2">{SUGAR_TAGS.map((st) => (<button key={st.value} onClick={() => toggleTag(st.value)} className="rounded-full px-3 py-2 transition-all" style={{ background: selectedTags.includes(st.value) ? (st.value === "hypo" ? C.blueLight : C.alertLight) : "transparent", border: `1px solid ${selectedTags.includes(st.value) ? (st.value === "hypo" ? C.blueBorder : C.alertBorder) : C.borderLight}`, color: selectedTags.includes(st.value) ? (st.value === "hypo" ? C.blueDark : C.alertText) : C.textSub, fontSize: 10, fontWeight: 600, fontFamily: "inherit" }} aria-pressed={selectedTags.includes(st.value)}>{st.label}</button>))}</div>
                 </div>
                 <div className="mb-4">
                   <label style={{ color: C.textSub, fontSize: T.nano, fontWeight: 600, fontFamily: "inherit" }}>How are you feeling?</label>
@@ -410,7 +408,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
                 <div className="mb-4"><label style={{ color: C.textSub, fontSize: T.nano, fontWeight: 600, fontFamily: "inherit" }}>Notes</label><input type="text" placeholder="Additional notes..." value={inputNotes} onChange={(e) => setInputNotes(e.target.value)} style={{ ...inputStyle, marginTop: 4, fontSize: T.bodySm }} aria-label="Notes" /></div>
                 <div className="flex gap-3">
                   <button onClick={resetForm} className="flex-1 rounded-xl flex items-center justify-center transition-all" style={{ minHeight: L.touch, background: C.secondaryLight, border: `1px solid ${C.secondaryBorder}`, color: C.textSub, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }}>Cancel</button>
-                  <button onClick={handleLog} disabled={!glucose} className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: glucose ? C.primary : C.borderLight, border: `1px solid ${C.primaryBorder}`, color: glucose ? "#111820" : C.textMuted, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }} aria-label="Save glucose reading"><Droplets size={14} />Log Reading</button>
+                  <button onClick={handleLog} disabled={!glucose} className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: glucose ? C.primary : C.borderLight, border: `1px solid ${C.primaryBorder}`, color: glucose ? C.text : C.textMuted, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }} aria-label="Save glucose reading"><Droplets size={14} />Log Reading</button>
                 </div>
               </div>
             )}
@@ -439,7 +437,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
                         {(e.tags.length > 0 || e.mood) && (
                           <div className="flex items-center gap-1.5 mt-1.5">
                             {e.mood && <MoodIcon mood={e.mood} size={12} />}
-                            {e.tags.map((t) => (<span key={t} className="rounded-full px-1.5 py-0.5" style={{ background: t === "hypo" ? "rgba(123,154,204,0.12)" : C.alertLight, color: t === "hypo" ? "#1E4A8A" : C.alertText, fontSize: 8, fontWeight: 600, fontFamily: "inherit" }}>{t}</span>))}
+                            {e.tags.map((t) => (<span key={t} className="rounded-full px-1.5 py-0.5" style={{ background: t === "hypo" ? C.blueLight : C.alertLight, color: t === "hypo" ? C.blueDark : C.alertText, fontSize: 8, fontWeight: 600, fontFamily: "inherit" }}>{t}</span>))}
                           </div>
                         )}
                       </div>
@@ -456,7 +454,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
                           {e.insulinDose != null && <div className="flex items-center gap-1"><Syringe size={10} color={C.secondary} /><span style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit" }}>Insulin: {e.insulinDose}u ({e.insulinType})</span></div>}
                           {e.activityType && <div className="flex items-center gap-1"><Footprints size={10} color={C.primary} /><span style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit" }}>{e.activityType} {e.activityDuration && `${e.activityDuration}min`}</span></div>}
                           {e.ketones != null && <div className="flex items-center gap-1"><Zap size={10} color={C.alert} /><span style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit" }}>Ketones: {e.ketones} mmol/L</span></div>}
-                          {e.systolic != null && e.diastolic != null && <div className="flex items-center gap-1"><Heart size={10} color="#BC6C8A" /><span style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit" }}>BP: {e.systolic}/{e.diastolic}</span></div>}
+                          {e.systolic != null && e.diastolic != null && <div className="flex items-center gap-1"><Heart size={10} color={C.rose} /><span style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit" }}>BP: {e.systolic}/{e.diastolic}</span></div>}
                         </div>
                         {e.mealDescription && <p style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit" }}>Meal: {e.mealDescription}</p>}
                         {e.notes && <p style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit" }}>Notes: {e.notes}</p>}

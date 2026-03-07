@@ -1,36 +1,19 @@
 import { useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle,
-  Heart,
-  Pill,
-  AlertCircle,
-  Scissors,
-  User,
-  Plus,
-  X,
-  Sparkles,
-} from "lucide-react";
 import { useNavigate } from "react-router";
+import {
+  User, Heart, Pill, AlertCircle, Scissors, CheckCircle,
+  ChevronLeft, ChevronRight, Plus, X, Sparkles
+} from "lucide-react";
+import { C, T, L } from "../design/tokens";
 
 /**
  * OnboardingWizard — Health Profile Setup (6-Step)
  * ═════════════════════════════════════════════════
  * WCAG 2.1 AA compliant · Muted Healing Palette · Montserrat
- *
- * Contrast audit (all on #FBFBFB / #FFFFFF):
- *   #1E293B → 12.6:1 ✓ AAA  (headings, strong text)
- *   #475569 →  5.9:1 ✓ AA   (body text, labels)
- *   #64748B →  4.6:1 ✓ AA   (secondary captions — large text)
- *   #3D6B4F →  6.2:1 ✓ AA   (success/condition badges)
- *   #92400E →  7.4:1 ✓ AAA  (error text)
- *
- * Typography: min 14px (captions), 16px (body S), 18px (body L)
- * Touch targets: min 56px height
+ * Token-driven: all colors via C.*, font sizes via T.*
  */
 
-const FONT = "'Montserrat', system-ui, -apple-system, sans-serif";
+const FONT = T.family;
 
 // ── Step config ───────────────────────────────────────────────────────────────
 const STEPS = [
@@ -77,7 +60,7 @@ function StepProgress({ current, total }: { current: number; total: number }) {
     <div className="flex flex-col gap-2">
       <div
         className="w-full rounded-full overflow-hidden"
-        style={{ height: 6, background: "#CBD5E1" }}
+        style={{ height: 6, background: C.border }}
         role="progressbar"
         aria-valuenow={current + 1}
         aria-valuemin={1}
@@ -88,7 +71,7 @@ function StepProgress({ current, total }: { current: number; total: number }) {
           style={{
             width: `${pct}%`,
             height: "100%",
-            background: "#8EAF9D",
+            background: C.primary,
             borderRadius: 9999,
             transition: "width 0.4s ease",
           }}
@@ -96,8 +79,8 @@ function StepProgress({ current, total }: { current: number; total: number }) {
       </div>
       <span
         style={{
-          color: "#64748B",           // 4.6:1 ✓ AA
-          fontSize: 14,               // caption min
+          color: C.secondary,           // 4.6:1 ✓ AA
+          fontSize: T.caption,               // caption min
           fontFamily: FONT,
           fontWeight: 500,
           textAlign: "right",
@@ -129,9 +112,9 @@ function ChipSelector({
             onClick={() => onToggle(opt)}
             className="rounded-full px-4 py-3 transition-all"
             style={{
-              background: isSelected ? "#8EAF9D" : "#FFFFFF",
-              border: `2px solid ${isSelected ? "#7A9D8C" : "#CBD5E1"}`,
-              color: isSelected ? "#1E293B" : "#1E293B",  // 12.6:1 ✓ AAA
+              background: isSelected ? C.primary : C.card,
+              border: `2px solid ${isSelected ? C.primaryDark : C.border}`,
+              color: C.text,  // 12.6:1 ✓ AAA
               fontSize: 16,
               fontWeight: isSelected ? 700 : 500,
               fontFamily: FONT,
@@ -146,7 +129,7 @@ function ChipSelector({
             {isSelected && (
               <CheckCircle
                 size={16}
-                color="#1E293B"
+                color={C.text}
                 style={{ flexShrink: 0 }}
                 aria-hidden="true"
               />
@@ -198,9 +181,9 @@ function AddItemList({
           placeholder={placeholder}
           className="flex-1 px-4 py-3 rounded-xl"
           style={{
-            background: "#FFFFFF",
-            border: "2px solid #CBD5E1",
-            color: "#1E293B",          // 12.6:1 ✓ AAA
+            background: C.card,
+            border: `2px solid ${C.border}`,
+            color: C.text,          // 12.6:1 ✓ AAA
             fontFamily: FONT,
             fontSize: 16,
             outline: "none",
@@ -214,18 +197,18 @@ function AddItemList({
           style={{
             width: 56,
             height: 56,                // touch target ✓
-            background: "#8EAF9D",
-            border: "1px solid rgba(142,175,157,0.4)",
-            color: "#1E293B",
+            background: C.primary,
+            border: `1px solid ${C.primaryBorder}`,
+            color: C.text,
             flexShrink: 0,
             cursor: "pointer",
           }}
           aria-label={`Add ${placeholder}`}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#7A9D8C";
+            (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark;
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#8EAF9D";
+            (e.currentTarget as HTMLButtonElement).style.background = C.primary;
           }}
         >
           <Plus size={20} />
@@ -240,16 +223,16 @@ function AddItemList({
               key={item}
               className="flex items-center gap-3 px-4 py-3 rounded-xl"
               style={{
-                background: "rgba(142,175,157,0.08)",
-                border: "1px solid rgba(142,175,157,0.20)",
+                background: C.primaryLight,            // was rgba(142,175,157,0.08)
+                border: `1px solid ${C.primaryBorder}`, // was rgba(142,175,157,0.20)
                 minHeight: 48,
               }}
             >
-              <Pill size={16} color="#3D6B4F" aria-hidden="true" />
+              <Pill size={16} color={C.successDark} aria-hidden="true" />
               <span
                 style={{
                   flex: 1,
-                  color: "#1E293B",       // 12.6:1 ✓ AAA
+                  color: C.text,       // 12.6:1 ✓ AAA
                   fontSize: 16,
                   fontFamily: FONT,
                   fontWeight: 500,
@@ -263,9 +246,9 @@ function AddItemList({
                 style={{
                   width: 36,
                   height: 36,
-                  background: "rgba(188,108,37,0.08)",
-                  border: "1px solid rgba(188,108,37,0.20)",
-                  color: "#92400E",       // 7.4:1 ✓ AAA
+                  background: C.errorLight,            // was rgba(188,108,37,0.08)
+                  border: `1px solid ${C.errorBorder}`, // was rgba(188,108,37,0.20)
+                  color: C.alertText,       // 7.4:1 ✓ AAA
                   cursor: "pointer",
                 }}
                 aria-label={`Remove ${item}`}
@@ -312,9 +295,9 @@ function SurgeryList({
           placeholder="Surgery / procedure name"
           className="flex-1 px-4 py-3 rounded-xl"
           style={{
-            background: "#FFFFFF",
-            border: "2px solid #CBD5E1",
-            color: "#1E293B",
+            background: C.card,
+            border: `2px solid ${C.border}`,
+            color: C.text,
             fontFamily: FONT,
             fontSize: 16,
             outline: "none",
@@ -330,9 +313,9 @@ function SurgeryList({
           className="px-3 py-3 rounded-xl"
           style={{
             width: 88,
-            background: "#FFFFFF",
-            border: "2px solid #CBD5E1",
-            color: "#1E293B",
+            background: C.card,
+            border: `2px solid ${C.border}`,
+            color: C.text,
             fontFamily: FONT,
             fontSize: 16,
             outline: "none",
@@ -346,18 +329,18 @@ function SurgeryList({
           style={{
             width: 56,
             height: 56,
-            background: "#8EAF9D",
-            border: "1px solid rgba(142,175,157,0.4)",
-            color: "#1E293B",
+            background: C.primary,
+            border: `1px solid ${C.primaryBorder}`,  // was rgba(142,175,157,0.4)
+            color: C.text,
             flexShrink: 0,
             cursor: "pointer",
           }}
           aria-label="Add surgery"
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#7A9D8C";
+            (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark;
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#8EAF9D";
+            (e.currentTarget as HTMLButtonElement).style.background = C.primary;
           }}
         >
           <Plus size={20} />
@@ -371,16 +354,16 @@ function SurgeryList({
               key={idx}
               className="flex items-center gap-3 px-4 py-3 rounded-xl"
               style={{
-                background: "rgba(142,175,157,0.06)",
-                border: "1px solid rgba(142,175,157,0.18)",
+                background: C.primaryLight,            // was rgba(142,175,157,0.06)
+                border: `1px solid ${C.primaryBorder}`, // was rgba(142,175,157,0.18)
                 minHeight: 48,
               }}
             >
-              <Scissors size={16} color="#3D6B4F" aria-hidden="true" />
+              <Scissors size={16} color={C.successDark} aria-hidden="true" />
               <span
                 style={{
                   flex: 1,
-                  color: "#1E293B",        // 12.6:1 ✓ AAA
+                  color: C.text,        // 12.6:1 ✓ AAA
                   fontSize: 16,
                   fontFamily: FONT,
                   fontWeight: 500,
@@ -390,7 +373,7 @@ function SurgeryList({
               </span>
               <span
                 style={{
-                  color: "#64748B",        // 4.6:1 ✓ AA
+                  color: C.secondary,        // 4.6:1 ✓ AA
                   fontSize: 14,
                   fontFamily: FONT,
                   fontWeight: 500,
@@ -404,9 +387,9 @@ function SurgeryList({
                 style={{
                   width: 36,
                   height: 36,
-                  background: "rgba(188,108,37,0.08)",
-                  border: "1px solid rgba(188,108,37,0.20)",
-                  color: "#92400E",
+                  background: C.errorLight,
+                  border: `1px solid ${C.errorBorder}`,
+                  color: C.alertText,
                   cursor: "pointer",
                 }}
                 aria-label={`Remove ${item.name}`}
@@ -460,24 +443,24 @@ export function OnboardingWizard() {
 
   return (
     <div
-      style={{ background: "#FBFBFB", minHeight: "100vh" }}
+      style={{ background: C.bg, minHeight: "100vh" }}
       className="flex flex-col"
     >
       {/* Top bar */}
       <div
         className="flex items-center gap-3 px-4 pt-10 pb-4"
-        style={{ borderBottom: "1px solid #CBD5E1" }}
+        style={{ borderBottom: `1px solid ${C.border}` }}
       >
         {!isFirst && step !== STEPS.length - 1 && (
           <button
             onClick={back}
             className="flex items-center justify-center rounded-xl"
             style={{
-              width: 56,
-              height: 56,            // touch target ✓
-              background: "#FFFFFF",
-              border: "1px solid #CBD5E1",
-              color: "#1E293B",
+              width: L.touch,
+              height: L.touch,
+              background: C.card,
+              border: `1px solid ${C.border}`,
+              color: C.text,
               cursor: "pointer",
             }}
             aria-label="Go back"
@@ -488,8 +471,8 @@ export function OnboardingWizard() {
         <div className="flex-1">
           <p
             style={{
-              color: "#64748B",         // 4.6:1 ✓ AA
-              fontSize: 14,
+              color: C.secondary,
+              fontSize: T.caption,
               fontWeight: 600,
               letterSpacing: "0.06em",
               fontFamily: FONT,
@@ -500,8 +483,8 @@ export function OnboardingWizard() {
           </p>
           <h1
             style={{
-              color: "#1E293B",         // 12.6:1 ✓ AAA
-              fontSize: 22,
+              color: C.text,
+              fontSize: T.h2,
               fontWeight: 700,
               fontFamily: FONT,
               margin: 0,
@@ -514,10 +497,10 @@ export function OnboardingWizard() {
           onClick={() => navigate("/")}
           style={{
             background: "transparent",
-            border: "1px solid #CBD5E1",
-            borderRadius: 12,
-            color: "#475569",          // 5.9:1 ✓ AA
-            fontSize: 16,
+            border: `1px solid ${C.border}`,
+            borderRadius: L.rMd,
+            color: C.textSub,
+            fontSize: T.bodyMd + 1,
             fontWeight: 600,
             fontFamily: FONT,
             cursor: "pointer",
@@ -540,8 +523,8 @@ export function OnboardingWizard() {
         <div
           className="rounded-2xl overflow-hidden flex-1"
           style={{
-            background: "#FFFFFF",
-            border: "1px solid #CBD5E1",
+            background: C.card,
+            border: `1px solid ${C.border}`,
             boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
           }}
         >
@@ -549,8 +532,8 @@ export function OnboardingWizard() {
           <div
             className="flex items-center gap-3 px-5 py-4"
             style={{
-              background: "rgba(142,175,157,0.06)",
-              borderBottom: "1px solid #CBD5E1",
+              background: C.primaryLight,
+              borderBottom: `1px solid ${C.border}`,
             }}
           >
             <div
@@ -558,18 +541,18 @@ export function OnboardingWizard() {
               style={{
                 width: 48,
                 height: 48,
-                background: "rgba(142,175,157,0.12)",
-                border: "1px solid rgba(142,175,157,0.25)",
+                background: C.primaryLight,
+                border: `1px solid ${C.primaryBorder}`,
               }}
               aria-hidden="true"
             >
-              <currentStep.icon size={22} color="#3D6B4F" />
+              <currentStep.icon size={22} color={C.successDark} />
             </div>
             <div>
               <p
                 style={{
-                  color: "#64748B",       // 4.6:1 ✓ AA
-                  fontSize: 14,
+                  color: C.secondary,
+                  fontSize: T.caption,
                   fontWeight: 600,
                   letterSpacing: "0.06em",
                   fontFamily: FONT,
@@ -580,8 +563,8 @@ export function OnboardingWizard() {
               </p>
               <p
                 style={{
-                  color: "#1E293B",       // 12.6:1 ✓ AAA
-                  fontSize: 18,
+                  color: C.text,
+                  fontSize: T.body,
                   fontWeight: 700,
                   fontFamily: FONT,
                   margin: 0,
@@ -599,8 +582,8 @@ export function OnboardingWizard() {
               <div className="flex flex-col gap-5">
                 <p
                   style={{
-                    color: "#1E293B",
-                    fontSize: 18,
+                    color: C.text,
+                    fontSize: T.body,
                     lineHeight: 1.6,
                     fontFamily: FONT,
                     margin: 0,
@@ -616,8 +599,8 @@ export function OnboardingWizard() {
                     <label
                       htmlFor="first-name"
                       style={{
-                        color: "#475569",       // 5.9:1 ✓ AA
-                        fontSize: 14,
+                        color: C.textSub,
+                        fontSize: T.caption,
                         fontWeight: 600,
                         letterSpacing: "0.04em",
                         fontFamily: FONT,
@@ -635,13 +618,13 @@ export function OnboardingWizard() {
                       placeholder="e.g., Sarah"
                       className="w-full px-4 py-3.5 rounded-xl"
                       style={{
-                        background: "#FFFFFF",
-                        border: "2px solid #CBD5E1",
-                        color: "#1E293B",
+                        background: C.card,
+                        border: `2px solid ${C.border}`,
+                        color: C.text,
                         fontFamily: FONT,
-                        fontSize: 18,
+                        fontSize: T.body,
                         outline: "none",
-                        minHeight: 56,
+                        minHeight: L.touch,
                       }}
                     />
                   </div>
@@ -649,8 +632,8 @@ export function OnboardingWizard() {
                     <label
                       htmlFor="dob"
                       style={{
-                        color: "#475569",
-                        fontSize: 14,
+                        color: C.textSub,
+                        fontSize: T.caption,
                         fontWeight: 600,
                         letterSpacing: "0.04em",
                         fontFamily: FONT,
@@ -667,13 +650,13 @@ export function OnboardingWizard() {
                       onChange={(e) => setDob(e.target.value)}
                       className="w-full px-4 py-3.5 rounded-xl"
                       style={{
-                        background: "#FFFFFF",
-                        border: "2px solid #CBD5E1",
-                        color: "#1E293B",
+                        background: C.card,
+                        border: `2px solid ${C.border}`,
+                        color: C.text,
                         fontFamily: FONT,
-                        fontSize: 18,
+                        fontSize: T.body,
                         outline: "none",
-                        minHeight: 56,
+                        minHeight: L.touch,
                       }}
                     />
                   </div>
@@ -681,8 +664,8 @@ export function OnboardingWizard() {
 
                 <p
                   style={{
-                    color: "#475569",          // 5.9:1 ✓ AA
-                    fontSize: 14,
+                    color: C.textSub,
+                    fontSize: T.caption,
                     lineHeight: 1.6,
                     fontFamily: FONT,
                     margin: 0,
@@ -699,8 +682,8 @@ export function OnboardingWizard() {
               <div className="flex flex-col gap-4">
                 <p
                   style={{
-                    color: "#1E293B",
-                    fontSize: 18,
+                    color: C.text,
+                    fontSize: T.body,
                     lineHeight: 1.6,
                     fontFamily: FONT,
                     margin: 0,
@@ -717,8 +700,8 @@ export function OnboardingWizard() {
                 {diagnoses.length > 0 && (
                   <p
                     style={{
-                      color: "#3D6B4F",       // 6.2:1 ✓ AA
-                      fontSize: 16,
+                      color: C.successDark,       // 6.2:1 ✓ AA
+                      fontSize: T.bodyMd + 1,
                       fontWeight: 600,
                       fontFamily: FONT,
                       display: "flex",
@@ -731,7 +714,7 @@ export function OnboardingWizard() {
                   >
                     <CheckCircle
                       size={16}
-                      color="#3D6B4F"
+                      color={C.successDark}
                       aria-hidden="true"
                     />
                     {diagnoses.length} condition
@@ -746,8 +729,8 @@ export function OnboardingWizard() {
               <div className="flex flex-col gap-4">
                 <p
                   style={{
-                    color: "#1E293B",
-                    fontSize: 18,
+                    color: C.text,
+                    fontSize: T.body,
                     lineHeight: 1.6,
                     fontFamily: FONT,
                     margin: 0,
@@ -767,8 +750,8 @@ export function OnboardingWizard() {
                 {medications.length === 0 && (
                   <p
                     style={{
-                      color: "#475569",       // 5.9:1 ✓ AA
-                      fontSize: 14,
+                      color: C.textSub,
+                      fontSize: T.caption,
                       fontFamily: FONT,
                       margin: 0,
                     }}
@@ -785,8 +768,8 @@ export function OnboardingWizard() {
               <div className="flex flex-col gap-4">
                 <p
                   style={{
-                    color: "#1E293B",
-                    fontSize: 18,
+                    color: C.text,
+                    fontSize: T.body,
                     lineHeight: 1.6,
                     fontFamily: FONT,
                     margin: 0,
@@ -818,8 +801,8 @@ export function OnboardingWizard() {
               <div className="flex flex-col gap-4">
                 <p
                   style={{
-                    color: "#1E293B",
-                    fontSize: 18,
+                    color: C.text,
+                    fontSize: T.body,
                     lineHeight: 1.6,
                     fontFamily: FONT,
                     margin: 0,
@@ -840,8 +823,8 @@ export function OnboardingWizard() {
                 {surgeries.length === 0 && (
                   <p
                     style={{
-                      color: "#475569",
-                      fontSize: 14,
+                      color: C.textSub,
+                      fontSize: T.caption,
                       fontFamily: FONT,
                       margin: 0,
                     }}
@@ -860,19 +843,19 @@ export function OnboardingWizard() {
                   style={{
                     width: 80,
                     height: 80,
-                    background: "rgba(61,107,79,0.08)",
-                    border: "2px solid rgba(61,107,79,0.20)",
+                    background: C.successLight,
+                    border: `2px solid ${C.successBorder}`,
                   }}
                   aria-hidden="true"
                 >
-                  <Sparkles size={36} color="#3D6B4F" />
+                  <Sparkles size={36} color={C.successDark} />
                 </div>
 
                 <div className="text-center">
                   <p
                     style={{
-                      color: "#1E293B",
-                      fontSize: 22,
+                      color: C.text,
+                      fontSize: T.h2,
                       fontWeight: 700,
                       fontFamily: FONT,
                       marginBottom: 8,
@@ -884,8 +867,8 @@ export function OnboardingWizard() {
                   </p>
                   <p
                     style={{
-                      color: "#475569",       // 5.9:1 ✓ AA
-                      fontSize: 16,
+                      color: C.textSub,       // 5.9:1 ✓ AA
+                      fontSize: T.bodyMd + 1,
                       lineHeight: 1.6,
                       fontFamily: FONT,
                     }}
@@ -898,7 +881,7 @@ export function OnboardingWizard() {
                 {/* Summary */}
                 <div
                   className="w-full rounded-xl overflow-hidden"
-                  style={{ border: "1px solid #CBD5E1" }}
+                  style={{ border: `1px solid ${C.border}` }}
                 >
                   <SummaryRow
                     label="Conditions"
@@ -947,23 +930,23 @@ export function OnboardingWizard() {
             onClick={next}
             className="w-full rounded-2xl py-4 flex items-center justify-center gap-2 transition-all"
             style={{
-              background: "#8EAF9D",
-              border: "1px solid rgba(142,175,157,0.4)",
-              color: "#1E293B",           // 5.1:1 on #8EAF9D ✓ AA
-              fontSize: 18,
+              background: C.primary,
+              border: `1px solid ${C.primaryBorder}`,
+              color: C.text,
+              fontSize: T.body,
               fontWeight: 700,
               fontFamily: FONT,
-              minHeight: 56,
+              minHeight: L.touch,
               cursor: "pointer",
             }}
             aria-label={`Continue to ${STEPS[step + 1]?.label}`}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.background =
-                "#7A9D8C";
+                C.primaryDark;
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.background =
-                "#8EAF9D";
+                C.primary;
             }}
           >
             Continue
@@ -974,23 +957,23 @@ export function OnboardingWizard() {
             onClick={() => navigate("/")}
             className="w-full rounded-2xl py-4 flex items-center justify-center gap-2 transition-all"
             style={{
-              background: "#8EAF9D",
-              border: "1px solid rgba(142,175,157,0.4)",
-              color: "#1E293B",
-              fontSize: 18,
+              background: C.primary,
+              border: `1px solid ${C.primaryBorder}`,
+              color: C.text,
+              fontSize: T.body,
               fontWeight: 700,
               fontFamily: FONT,
-              minHeight: 56,
+              minHeight: L.touch,
               cursor: "pointer",
             }}
             aria-label="Go to your dashboard"
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.background =
-                "#7A9D8C";
+                C.primaryDark;
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.background =
-                "#8EAF9D";
+                C.primary;
             }}
           >
             <Heart size={20} />
@@ -1015,14 +998,14 @@ function SummaryRow({
     <div
       className="flex justify-between px-5 py-3.5"
       style={{
-        borderBottom: last ? "none" : "1px solid #CBD5E1",
-        background: "#FFFFFF",
+        borderBottom: last ? "none" : `1px solid ${C.border}`,
+        background: C.card,
       }}
     >
       <span
         style={{
-          color: "#475569",           // 5.9:1 ✓ AA
-          fontSize: 14,
+          color: C.textSub,
+          fontSize: T.caption,
           fontFamily: FONT,
           fontWeight: 500,
         }}
@@ -1031,8 +1014,8 @@ function SummaryRow({
       </span>
       <span
         style={{
-          color: "#1E293B",           // 12.6:1 ✓ AAA
-          fontSize: 14,
+          color: C.text,
+          fontSize: T.caption,
           fontWeight: 600,
           fontFamily: FONT,
           maxWidth: "55%",
