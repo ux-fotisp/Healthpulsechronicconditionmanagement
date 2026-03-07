@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+
+/* ──────────────────────────────────────────────────────────────────────────────
+   HealthPulse · Typography Foundation
+   Primary: Montserrat — selected for strong legibility on mobile medical UIs.
+   Accessibility: All weights 400+ pass WCAG 2.1 AA at 18px body size.
+   ────────────────────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

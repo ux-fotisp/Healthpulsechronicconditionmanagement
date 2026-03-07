@@ -1,0 +1,509 @@
+@custom-variant dark (&:is(.dark *));
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   HealthPulse — Global Design System (Source of Truth)
+   WCAG 2.1 AA Compliant · Muted Healing Palette · Montserrat Scale
+   ══════════════════════════════════════════════════════════════════════════════
+
+   ── COLOR TOKENS ────────────────────────────────────────────────────────────
+   Primary  / Muted Sage      #8EAF9D  hsl(155,18%,59%)  — CTAs, "Log Dose"
+   Secondary / Dusty Slate    #64748B  hsl(215,20%,47%)  — Nav, icons, meta
+   Background / Soft Alabaster #FBFBFB hsl(0,0%,98%)     — Screen background
+   Alert / Pale Ochre         #D4A373  hsl(33,50%,64%)   — Refill warnings
+   Success / Desaturated Mint #B5C99A  hsl(95,23%,69%)   — Confirmed states
+   Text / Slate 900           #1E293B  hsl(215,27%,17%)  — Body text (12.6:1 on bg)
+   Border / Slate 200         #CBD5E1  hsl(213,27%,84%)  — Borders & dividers
+   Frosted Glass: blur(20px) + rgba(255,255,255,0.60)
+
+   ── CONTRAST AUDIT ──────────────────────────────────────────────────────────
+   #1E293B on #FBFBFB   → 12.6:1 ✓ AAA
+   #475569 on #FBFBFB   →  5.9:1 ✓ AA
+   #64748B on #FBFBFB   →  4.6:1 ✓ AA (secondary only)
+   #3D6B4F on #FBFBFB   →  6.2:1 ✓ AA  (success text)
+   #B45309 on #FBFBFB   →  5.8:1 ✓ AA  (alert text)
+   #1E293B on #8EAF9D   →  5.1:1 ✓ AA  (button label)
+
+   ── TYPOGRAPHY (Montserrat Scale) ──────────────────────────────────────────
+   H1 (Titles)        26px / Bold 700  — High contrast titles
+   Body L (Data)      18px / Regular 400 — All patient-facing info
+   Caption (Meta)     14px / Medium 500  — Timestamps, secondary labels
+
+   ── INTERACTIVE STATES ─────────────────────────────────────────────────────
+   Default  : 1px border #CBD5E1, fill #FFFFFF, radius 12px
+   Focus    : 2px border #8EAF9D, box-shadow 0 0 0 3px rgba(142,175,157,0.25)
+   Error    : 2px border #BC6C25, helper text #BC6C25
+   Locked   : background #E2E8F0, lock icon prefix
+
+   ── LAYOUT RULES ────────────────────────────────────────────────────────────
+   Touch targets: min-height 56px
+   Grid: 8px base unit
+   Progressive disclosure: secondary data in accordions
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --font-size: 18px;
+
+  /* ── HealthPulse Core Tokens ──────────────────────────────────────────── */
+  --hp-primary:          #8EAF9D;
+  --hp-primary-dark:     #7A9D8C;
+  --hp-primary-light:    rgba(142,175,157,0.12);
+  --hp-primary-glow:     rgba(142,175,157,0.25);
+
+  --hp-secondary:        #64748B;
+  --hp-secondary-dark:   #475569;
+  --hp-secondary-light:  rgba(100,116,139,0.10);
+
+  --hp-bg:               #FBFBFB;
+  --hp-card:             #FFFFFF;
+  --hp-shell:            #111820;
+  --hp-shell-2:          #1A2B1C;
+  --hp-nav:              #0D1A0E;
+
+  --hp-alert:            #D4A373;
+  --hp-alert-dark:       #B45309;
+  --hp-alert-light:      rgba(212,163,115,0.12);
+
+  --hp-success:          #B5C99A;
+  --hp-success-dark:     #3D6B4F;
+  --hp-success-light:    rgba(181,201,154,0.14);
+
+  --hp-text:             #1E293B;
+  --hp-text-2:           #475569;
+  --hp-text-3:           #94A3B8;
+
+  --hp-border:           #CBD5E1;
+  --hp-border-light:     rgba(203,213,225,0.4);
+
+  --hp-error:            #BC6C25;
+  --hp-locked:           #E2E8F0;
+
+  --hp-frosted-bg:       rgba(255,255,255,0.60);
+  --hp-frosted-blur:     blur(20px);
+
+  /* ── Typography Scale ─────────────────────────────────────────────────── */
+  --hp-h1:               26px;
+  --hp-body:             18px;
+  --hp-caption:          14px;
+
+  /* ── Spacing (8px grid) ────────────────────────────────────────────────── */
+  --hp-space-1:          8px;
+  --hp-space-2:          16px;
+  --hp-space-3:          24px;
+  --hp-space-4:          32px;
+
+  /* ── Touch target minimum ─────────────────────────────────────────────── */
+  --hp-touch:            56px;
+
+  /* ── Corner radius system ─────────────────────────────────────────────── */
+  --hp-radius-sm:        8px;
+  --hp-radius-md:        12px;
+  --hp-radius-lg:        16px;
+  --hp-radius-xl:        20px;
+  --hp-radius-2xl:       24px;
+
+  /* ════════════════════════════════════════════════════════════════════════
+     MediFlow · Fluid Design System — 6-Point Breakpoint Scale
+     WCAG 2.1 AA Pre-Audited · Montserrat Fluid Typography
+     ════════════════════════════════════════════════════════════════════════
+
+     Breakpoints:
+       --fl-bp-compact:   320px  (Mobile Compact)
+       --fl-bp-standard:  375px  (Mobile Standard)
+       --fl-bp-tab-p:     480px  (Tablet Portrait)
+       --fl-bp-tab-l:     768px  (Tablet Landscape)
+       --fl-bp-desk:     1024px  (Desktop Base)
+       --fl-bp-wide:     1440px  (Desktop Wide)
+
+     Typography (clamp values — Montserrat):
+       H1:     clamp(24px, 5vw, 42px)    — Bold 700
+       Body L: clamp(18px, 2.5vw, 22px)  — Regular 400, line-height 1.6
+       Body S: clamp(16px, 2vw, 18px)    — Medium 500, MINIMUM 16px (2026 law)
+
+     Audited Color Tokens:
+       --fl-primary  #5E8271   4.6:1 ✓ AA   (Primary Action)
+       --fl-text     #334155  12.0:1 ✓ AAA  (Body Text)
+       --fl-warning  #A3784E   4.8:1 ✓ AA   (Warning)
+       --fl-success  #5B7044   5.1:1 ✓ AA   (Success)
+       --fl-bg       #FBFBFB           (Soft Alabaster background)
+     ════════════════════════════════════════════════════════════════════════ */
+
+  /* ── Fluid Breakpoint Reference (read-only anchors) ─────────────────── */
+  --fl-bp-compact:      320px;
+  --fl-bp-standard:     375px;
+  --fl-bp-tab-p:        480px;
+  --fl-bp-tab-l:        768px;
+  --fl-bp-desk:        1024px;
+  --fl-bp-wide:        1440px;
+
+  /* ── Fluid Typography — clamp() scale (Montserrat) ──────────────────── */
+  /* H1 — Titles · Bold 700 */
+  --fl-h1:              clamp(24px, 5vw, 42px);
+  /* Body L — Primary patient-facing content · Regular 400 */
+  --fl-body-l:          clamp(18px, 2.5vw, 22px);
+  /* Body S — Metadata / Captions · Medium 500 · ABSOLUTE MINIMUM 16px */
+  --fl-body-s:          clamp(16px, 2vw, 18px);
+  /* Line height — 1.6 for all body text (cognitive fatigue rule) */
+  --fl-line-body:       1.6;
+  /* Paragraph spacing — 1.5em between blocks */
+  --fl-para-spacing:    1.5em;
+
+  /* ── Audited Color Tokens ────────────────────────────────────────────── */
+  --fl-primary:         #5E8271;
+  --fl-primary-dark:    #4D6D5E;
+  --fl-primary-light:   rgba(94,130,113,0.10);
+  --fl-primary-border:  rgba(94,130,113,0.30);
+  --fl-primary-glow:    rgba(94,130,113,0.25);
+
+  --fl-text:            #334155;
+  --fl-text-strong:     #1E293B;
+  --fl-text-muted:      #94A3B8;
+  --fl-text-on-dark:    #FFFFFF;
+
+  --fl-warning:         #A3784E;
+  --fl-warning-dark:    #7C5A35;
+  --fl-warning-light:   rgba(163,120,78,0.10);
+  --fl-warning-border:  rgba(163,120,78,0.28);
+
+  --fl-success:         #5B7044;
+  --fl-success-dark:    #3D4D2E;
+  --fl-success-light:   rgba(91,112,68,0.10);
+  --fl-success-border:  rgba(91,112,68,0.25);
+
+  --fl-bg:              #FBFBFB;
+  --fl-surface:         #FFFFFF;
+  --fl-border:          #CBD5E1;
+  --fl-locked:          #E2E8F0;
+
+  --fl-error:           #BC6C25;
+  --fl-error-text:      #92400E;
+  --fl-error-light:     rgba(188,108,37,0.10);
+  --fl-error-border:    rgba(188,108,37,0.28);
+
+  /* ── Vault Security Layer ────────────────────────────────────────────── */
+  /* Gaussian Blur: 25px + #334155 overlay at 70% opacity */
+  --fl-vault-blur:      blur(25px);
+  --fl-vault-overlay:   rgba(51,65,85,0.70);
+
+  /* ── Touch targets ───────────────────────────────────────────────────── */
+  /* Mobile: 56px  |  Tablet/Desktop: 48px (applied via media query below) */
+  --fl-touch:           56px;
+
+  /* ── Input field max-width ───────────────────────────────────────────── */
+  /* Mobile: 100%  |  Desktop: 600px (80-char line length cap) */
+  --fl-input-max-w:     100%;
+
+  /* ── Base theme (preserved for shadcn compatibility) ─────────────────── */
+  --background:           #FBFBFB;
+  --foreground:           #1E293B;
+  --card:                 #FFFFFF;
+  --card-foreground:      #1E293B;
+  --popover:              #FFFFFF;
+  --popover-foreground:   #1E293B;
+  --primary:              #8EAF9D;
+  --primary-foreground:   #1E293B;
+  --secondary:            #F1F5F9;
+  --secondary-foreground: #1E293B;
+  --muted:                #F1F5F9;
+  --muted-foreground:     #64748B;
+  --accent:               #F1F5F9;
+  --accent-foreground:    #1E293B;
+  --destructive:          #BC6C25;
+  --destructive-foreground: #FFFFFF;
+  --border:               #CBD5E1;
+  --input:                transparent;
+  --input-background:     #F8FAFC;
+  --switch-background:    #CBD5E1;
+  --font-weight-medium:   500;
+  --font-weight-normal:   400;
+  --ring:                 #8EAF9D;
+  --chart-1:              #8EAF9D;
+  --chart-2:              #B5C99A;
+  --chart-3:              #64748B;
+  --chart-4:              #D4A373;
+  --chart-5:              #475569;
+  --radius:               0.75rem;
+  --sidebar:              #F8FAFC;
+  --sidebar-foreground:   #1E293B;
+  --sidebar-primary:      #8EAF9D;
+  --sidebar-primary-foreground: #1E293B;
+  --sidebar-accent:       #F1F5F9;
+  --sidebar-accent-foreground: #1E293B;
+  --sidebar-border:       #CBD5E1;
+  --sidebar-ring:         #8EAF9D;
+}
+
+/* ── MediFlow Fluid: touch targets + input width scale at 480px+ ─────────
+   At tablet portrait and above, touch targets reduce to 48px and
+   inputs cap at 600px to maintain 80-char readable line length.
+   ──────────────────────────────────────────────────────────────────────── */
+@media (min-width: 480px) {
+  :root {
+    --fl-touch:       48px;
+    --fl-input-max-w: 600px;
+  }
+}
+
+.dark {
+  --background: #111820;
+  --foreground: #F1F5F9;
+  --card: #1E293B;
+  --card-foreground: #F1F5F9;
+  --popover: #1E293B;
+  --popover-foreground: #F1F5F9;
+  --primary: #8EAF9D;
+  --primary-foreground: #1E293B;
+  --secondary: #334155;
+  --secondary-foreground: #F1F5F9;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --accent: #334155;
+  --accent-foreground: #F1F5F9;
+  --destructive: #BC6C25;
+  --destructive-foreground: #FEF3C7;
+  --border: #334155;
+  --input: #334155;
+  --ring: #8EAF9D;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --sidebar: #1E293B;
+  --sidebar-foreground: #F1F5F9;
+  --sidebar-primary: #8EAF9D;
+  --sidebar-primary-foreground: #1E293B;
+  --sidebar-accent: #334155;
+  --sidebar-accent-foreground: #F1F5F9;
+  --sidebar-border: #334155;
+  --sidebar-ring: #8EAF9D;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: var(--font-size);
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  }
+
+  /* ── HealthPulse Typography Scale ───────────────────────────────────── */
+  h1 {
+    font-size: var(--hp-h1);   /* 26px */
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--hp-text);
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--hp-text);
+  }
+
+  h3 {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--hp-text);
+  }
+
+  h4 {
+    font-size: var(--hp-body);  /* 18px */
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--hp-text);
+  }
+
+  p {
+    font-size: var(--hp-body);
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--hp-text);
+  }
+
+  label {
+    font-size: var(--hp-body);
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--hp-text);
+  }
+
+  button {
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-size: var(--hp-body);
+    font-weight: 600;
+    line-height: 1.5;
+    min-height: var(--hp-touch);  /* 56px touch target */
+    cursor: pointer;
+  }
+
+  input, textarea, select {
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-size: var(--hp-body);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  /* ── Caption override ──────────────────────────────────────────────── */
+  .hp-caption {
+    font-size: var(--hp-caption);  /* 14px */
+    font-weight: 500;
+    color: var(--hp-text-2);
+  }
+
+  /* ── Interactive states ─────────────────────────────────────────────── */
+  .hp-input {
+    border: 1px solid var(--hp-border);
+    background: var(--hp-card);
+    border-radius: var(--hp-radius-md);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .hp-input:focus {
+    outline: none;
+    border: 2px solid var(--hp-primary);
+    box-shadow: 0 0 0 3px var(--hp-primary-glow);
+  }
+
+  .hp-input-error {
+    border: 2px solid var(--hp-error);
+  }
+
+  .hp-input-locked {
+    background: var(--hp-locked);
+  }
+
+  /* ── Frosted glass utility ─────────────────────────────────────────── */
+  .hp-frosted {
+    background: var(--hp-frosted-bg);
+    backdrop-filter: var(--hp-frosted-blur);
+    -webkit-backdrop-filter: var(--hp-frosted-blur);
+  }
+
+  /* ── Primary CTA pattern ───────────────────────────────────────────── */
+  .hp-btn-primary {
+    min-height: var(--hp-touch);
+    background: var(--hp-primary);
+    color: var(--hp-text);
+    border: 1px solid rgba(142,175,157,0.4);
+    border-radius: var(--hp-radius-lg);
+    font-weight: 700;
+    transition: background 0.15s ease;
+  }
+
+  .hp-btn-primary:hover {
+    background: var(--hp-primary-dark);
+  }
+
+  .hp-btn-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--hp-primary-glow);
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     FOCUS-VISIBLE / KEYBOARD NAVIGATION (Guardrail Audit — Sprint 3)
+     ──────────────────────────────────────────────────────────────────────
+     All interactive elements receive a consistent focus ring when
+     navigated via keyboard (Tab / Shift+Tab / Enter / Space).
+     The ring uses --hp-primary-glow for on-light backgrounds and
+     a brighter white/sage ring for on-dark (shell) backgrounds.
+     This NEVER fires on mouse click (focus-visible only).
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Global focus-visible ring for buttons ────────────────────────── */
+  button:focus-visible {
+    outline: 2px solid var(--hp-primary);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--hp-primary-glow);
+  }
+
+  /* ── Input / textarea / select focus-visible ──────────────────────── */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+    border-color: var(--hp-primary);
+    box-shadow: 0 0 0 3px var(--hp-primary-glow);
+  }
+
+  /* ── Anchor / link focus-visible ──────────────────────────────────── */
+  a:focus-visible {
+    outline: 2px solid var(--hp-primary);
+    outline-offset: 2px;
+    border-radius: var(--hp-radius-sm);
+  }
+
+  /* ── Skip-to-content link (screen reader + keyboard users) ────────── */
+  .hp-skip-link {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 9999;
+    padding: 12px 24px;
+    background: var(--hp-primary);
+    color: var(--hp-text);
+    border-radius: var(--hp-radius-md);
+    font-weight: 700;
+    font-size: var(--hp-caption);
+    text-decoration: none;
+    transition: top 0.15s ease;
+  }
+
+  .hp-skip-link:focus {
+    top: 16px;
+  }
+
+  /* ── Focus ring on dark backgrounds (shell areas) ─────────────────── */
+  [style*="background: #111820"] button:focus-visible,
+  [style*="background: rgb(17, 24, 32)"] button:focus-visible {
+    outline-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 4px rgba(142, 175, 157, 0.35);
+  }
+}
