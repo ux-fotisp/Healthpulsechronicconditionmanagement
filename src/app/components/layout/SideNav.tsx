@@ -75,7 +75,7 @@ export function SideNav() {
             </p>
             <p
               style={{
-                color:      "rgba(255,255,255,0.40)",
+                color:      "rgba(255,255,255,0.55)",
                 fontSize:   11,
                 fontFamily: "'Montserrat', sans-serif",
                 margin:     0,

@@ -55,7 +55,7 @@ export function ActiveStateCard() {
           </span>
         </div>
 
-        <div className="px-5 py-4">
+        <div className="px-5 py-4" aria-live="polite">
           {activeState.kind === "medication" ? (
             <MedicationActiveState
               state={activeState}

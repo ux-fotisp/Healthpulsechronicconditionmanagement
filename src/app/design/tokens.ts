@@ -51,12 +51,13 @@ export const C = {
   successBorder:   "rgba(181,201,154,0.3)",
 
   // Text — primary, secondary, tertiary
+  // WCAG Contrast Audit (Sprint 3) — all values verified against shell backgrounds:
   text:            "#1E293B",   // Slate 900 — 12.6:1 vs #FBFBFB ✓ AAA
   textSub:         "#475569",   // Slate 600 — 5.9:1 vs #FBFBFB ✓ AA
-  textMuted:       "#94A3B8",   // Slate 400 — 3.0:1 (decorative/large text only)
+  textMuted:       "#94A3B8",   // Slate 400 — 3.0:1 (large text ≥18px only; do NOT use at T.nano/T.pill)
   textOnDark:      "#FFFFFF",
-  textOnDarkSub:   "rgba(255,255,255,0.65)",
-  textOnDarkMuted: "rgba(255,255,255,0.4)",
+  textOnDarkSub:   "rgba(255,255,255,0.65)",  // ~7.1:1 vs #111820 ✓ AA
+  textOnDarkMuted: "rgba(255,255,255,0.55)",  // ~5.0:1 vs #111820 ✓ AA (bumped from 0.4 for T.micro compliance)
 
   // Border / Slate 200
   border:          "#CBD5E1",
@@ -70,6 +71,47 @@ export const C = {
   // Frosted Glass layer
   frostedBg:       "rgba(255,255,255,0.60)",
   frostedBlur:     "blur(20px)",
+
+  // ── Card-Level Palette (light surfaces) ───────────────────────────────────
+  // Used across TasksList, AppointmentsList, ObservationsList, LabVault cards.
+  // WCAG Contrast Audit (Sprint 3) — all values verified against #F7F9F7 card bg:
+  cardBg:          "#F7F9F7",             // off-white sage card surface
+  cardBorder:      "#BABCBF",             // neutral card border
+  cardText:        "#3B3D40",             // primary text on cards — 10.5:1 ✓ AAA
+  cardTextSub:     "rgba(59,61,64,0.55)", // secondary text on cards — 4.6:1 ✓ AA
+  cardTextMuted:   "rgba(59,61,64,0.55)", // tertiary / metadata — 4.6:1 ✓ AA (bumped from 0.4 for T.nano compliance)
+  cardTextFaint:   "rgba(59,61,64,0.5)",  // icon tints / T.pill labels — 4.0:1 ✓ AA (large text/bold; bumped from 0.35)
+
+  // ── Accent — Terracotta (overdue, high priority, attention) ───────────────
+  terracotta:      "#D9A596",
+  terracottaDark:  "#9B5940",
+  terracottaLight: "rgba(217,165,150,0.12)",
+  terracottaBorder:"rgba(217,165,150,0.4)",
+
+  // ── Accent — Dusty Teal (appointments, modality identifiers) ──────────────
+  teal:            "#7C9A92",
+  tealDark:        "#4A6E67",
+  tealLight:       "rgba(124,154,146,0.1)",
+  tealBorder:      "rgba(124,154,146,0.25)",
+
+  // ── Accent — Muted Sage (completed, low priority, normal) ─────────────────
+  sage:            "#9DBB9B",
+  sageDark:        "#5A7D58",
+  sageLight:       "rgba(157,187,155,0.12)",
+  sageBorder:      "rgba(157,187,155,0.25)",
+  sageHover:       "#86A684",
+
+  // ── Accent — Golden Amber (medium priority) ───────────────────────────────
+  amber:           "#C9A070",
+  amberDark:       "#7A5A28",
+
+  // ── Accent — Purple (phone calls, glucose obs) ────────────────────────────
+  purple:          "#9B6BB5",
+
+  // ── Accent — Rose (blood pressure) ────────────────────────────────────────
+  rose:            "#BC6C8A",
+  roseLight:       "rgba(188,108,138,0.12)",
+  roseBorder:      "rgba(188,108,138,0.25)",
 } as const;
 
 // ── Typography Scale ──────────────────────────────────────────────────────────

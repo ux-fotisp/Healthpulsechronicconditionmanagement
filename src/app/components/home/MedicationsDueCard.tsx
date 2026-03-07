@@ -246,7 +246,7 @@ export function MedicationsDueCard() {
         )}
       </div>
 
-      <div className="px-4 py-4 flex flex-col gap-3">
+      <div className="px-4 py-4 flex flex-col gap-3" aria-live="polite">
         {isEmpty ? (
           /* All medications logged */
           <div

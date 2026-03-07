@@ -21,6 +21,8 @@ import {
   HeartPulse, Droplets,
 } from "lucide-react";
 import { MF_C, MF_T, MF_L, MEDIFLOW_NAME } from "../design/mediflow";
+import { useSaveHealthProfile } from "../hooks/useHealthData";
+import { toast } from "sonner";
 
 // ── Total steps ────────────────────────────────────────────────────────────────
 const TOTAL_STEPS = 5;
@@ -741,6 +743,8 @@ export function HealthProfileWizard() {
     specialty:   "",
   });
 
+  const { save: saveProfile, loading: saving } = useSaveHealthProfile();
+
   function validate(): boolean {
     const e = { name: "", physician: "" };
     let ok = true;
@@ -756,13 +760,27 @@ export function HealthProfileWizard() {
     return ok;
   }
 
-  function handleNext() {
+  async function handleNext() {
     if (!validate()) return;
     if (step < TOTAL_STEPS) {
       setStep((s) => s + 1);
       setErrors({ name: "", physician: "" });
     } else {
-      setDone(true);
+      // Persist profile to backend
+      try {
+        await saveProfile({
+          name: data.name,
+          conditions: data.conditions,
+          medications: data.medications,
+          physician: data.physician,
+          specialty: data.specialty,
+        });
+        toast.success("Health profile saved successfully");
+        setDone(true);
+      } catch (e) {
+        console.error("Failed to save health profile:", e);
+        toast.error("Failed to save profile. Please try again.");
+      }
     }
   }
 

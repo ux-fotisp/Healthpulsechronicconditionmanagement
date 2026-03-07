@@ -11,6 +11,7 @@ import { Outlet } from "react-router";
 import { BottomNav } from "./BottomNav";
 import { SideNav } from "./SideNav";
 import { useBreakpoint } from "../../hooks/useBreakpoint";
+import { ErrorBoundary } from "../shared/ErrorBoundary";
 
 export function RootLayout() {
   const { isMobile } = useBreakpoint();
@@ -36,7 +37,9 @@ export function RootLayout() {
             aria-label="HealthPulse main content"
             tabIndex={-1}
           >
-            <Outlet />
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
           </main>
           <BottomNav />
         </div>
@@ -78,7 +81,9 @@ export function RootLayout() {
             minHeight: "100%",
           }}
         >
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </main>
     </div>

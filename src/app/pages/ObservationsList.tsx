@@ -9,14 +9,17 @@ import {
   AlertTriangle,
   CircleAlert,
 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useObservations, useObservationTrends } from "../hooks/useHealthData";
+import { useObservations, useObservationTrends, useLogObservation } from "../hooks/useHealthData";
 import { hydrateObservations, hydrateObservationTrends, formatDateTime, getObservationTrend as findTrend, type Observation, type ObservationTrend } from "../data/helpers";
 import { StatusBadge } from "../components/shared/StatusBadge";
 import type { StatusType } from "../components/shared/StatusBadge";
 import { ReadingContext } from "../components/shared/ReadingContext";
 import { Sparkline } from "../components/shared/Sparkline";
 import { PageSkeleton } from "../components/shared/LoadingSkeleton";
+import { LogVitalsModal } from "../components/shared/LogVitalsModal";
+import { C, T, L } from "../design/tokens";
 
 const OBS_ICONS: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
   "Blood Pressure": Heart,
@@ -28,22 +31,22 @@ const OBS_ICONS: Record<string, React.ComponentType<{ size?: number; color?: str
 
 // Observation type colors — individual identifiers (not status-semantic)
 const OBS_COLORS: Record<string, string> = {
-  "Blood Pressure": "#D9A596",   // Pale Terracotta as BP type identifier
-  "Heart Rate": "#7C9A92",       // Dusty Teal
-  "Blood Glucose": "#9B6BB5",    // keep purple as distinct identifier
-  "Weight": "#9DBB9B",           // Muted Sage
-  "SpO₂": "#7C9A92",             // Dusty Teal
+  "Blood Pressure": C.terracotta,
+  "Heart Rate": C.teal,
+  "Blood Glucose": C.purple,
+  "Weight": C.sage,
+  "SpO₂": C.teal,
 };
 
 function ObsCard({ obs, trends }: { obs: Observation; trends: ObservationTrend[] }) {
   const Icon = OBS_ICONS[obs.type] ?? Activity;
-  const color = OBS_COLORS[obs.type] ?? "#9DBB9B";
+  const color = OBS_COLORS[obs.type] ?? C.sage;
   const statusType = obs.status as StatusType;
 
   const StatusIcon =
     statusType === "normal" ? CheckCircle : statusType === "warning" ? AlertTriangle : CircleAlert;
-  const statusIconColor = statusType === "normal" ? "#9DBB9B" : "#D9A596";
-  const statusTextBg = statusType === "normal" ? "rgba(157,187,155,0.12)" : "rgba(217,165,150,0.12)";
+  const statusIconColor = statusType === "normal" ? C.sage : C.terracotta;
+  const statusTextBg = statusType === "normal" ? C.sageLight : C.terracottaLight;
 
   const trend = findTrend(obs.type, trends);
 
@@ -51,8 +54,8 @@ function ObsCard({ obs, trends }: { obs: Observation; trends: ObservationTrend[]
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: "#F7F9F7",
-        border: `1px solid ${statusType !== "normal" ? "rgba(217,165,150,0.4)" : "#BABCBF"}`,
+        background: C.cardBg,
+        border: `1px solid ${statusType !== "normal" ? C.terracottaBorder : C.cardBorder}`,
       }}
     >
       {/* Header row */}
@@ -72,10 +75,10 @@ function ObsCard({ obs, trends }: { obs: Observation; trends: ObservationTrend[]
           <Icon size={18} color={color} />
         </div>
         <div className="flex-1">
-          <p style={{ color: "#3B3D40", fontSize: 14, fontWeight: 700, fontFamily: "inherit" }}>
+          <p style={{ color: C.cardText, fontSize: T.caption, fontWeight: 700, fontFamily: "inherit" }}>
             {obs.type}
           </p>
-          <p style={{ color: "rgba(59,61,64,0.4)", fontSize: 10, fontFamily: "inherit", marginTop: 1, letterSpacing: "0.04em" }}>
+          <p style={{ color: C.cardTextMuted, fontSize: T.nano, fontFamily: "inherit", marginTop: 1, letterSpacing: "0.04em" }}>
             LOINC: {obs.loincCode}
           </p>
         </div>
@@ -88,7 +91,7 @@ function ObsCard({ obs, trends }: { obs: Observation; trends: ObservationTrend[]
           <div className="flex items-baseline gap-1.5">
             <span
               style={{
-                color: "#3B3D40",
+                color: C.cardText,
                 fontSize: 32,
                 fontWeight: 800,
                 letterSpacing: "-0.04em",
@@ -98,11 +101,11 @@ function ObsCard({ obs, trends }: { obs: Observation; trends: ObservationTrend[]
             >
               {obs.value}
             </span>
-            <span style={{ color: "rgba(59,61,64,0.5)", fontSize: 13, fontFamily: "inherit" }}>
+            <span style={{ color: C.cardTextSub, fontSize: T.bodySm, fontFamily: "inherit" }}>
               {obs.unit}
             </span>
           </div>
-          <p style={{ color: "rgba(59,61,64,0.45)", fontSize: 11, fontFamily: "inherit", marginTop: 6 }}>
+          <p style={{ color: C.cardTextMuted, fontSize: T.micro, fontFamily: "inherit", marginTop: 6 }}>
             {formatDateTime(obs.effectiveDateTime)}
           </p>
         </div>
@@ -135,10 +138,10 @@ function ObsCard({ obs, trends }: { obs: Observation; trends: ObservationTrend[]
       {trend && trend.data.length >= 2 && (
         <div className="px-4 pb-4">
           <div className="flex items-center justify-between mb-1.5">
-            <p style={{ color: "rgba(59,61,64,0.4)", fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "inherit" }}>
+            <p style={{ color: C.cardTextMuted, fontSize: T.pill, fontWeight: 700, letterSpacing: "0.08em", fontFamily: "inherit" }}>
               30-DAY TREND
             </p>
-            <p style={{ color: "rgba(59,61,64,0.35)", fontSize: 9, fontFamily: "inherit" }}>
+            <p style={{ color: C.cardTextFaint, fontSize: T.pill, fontFamily: "inherit" }}>
               {trend.data.length} readings
             </p>
           </div>
@@ -172,8 +175,10 @@ function ObsCard({ obs, trends }: { obs: Observation; trends: ObservationTrend[]
 
 export function ObservationsList() {
   const navigate = useNavigate();
-  const { data: rawObs, loading: loadingObs } = useObservations();
+  const { data: rawObs, loading: loadingObs, refetch } = useObservations();
   const { data: rawTrends, loading: loadingTrends } = useObservationTrends();
+  const { logObservation, loading: loggingObs } = useLogObservation();
+  const [showLogModal, setShowLogModal] = useState(false);
 
   if (loadingObs || loadingTrends) return <PageSkeleton title="Health Labs" cardCount={4} />;
 
@@ -187,31 +192,31 @@ export function ObservationsList() {
   const normals = sorted.filter((o) => o.status === "normal");
 
   return (
-    <div style={{ background: "#1A2B1C", minHeight: "100vh" }}>
+    <div style={{ background: C.shellAlt, minHeight: "100vh" }}>
       {/* Top bar */}
       <div
         className="flex items-center gap-3 px-4 pt-10 pb-4"
-        style={{ borderBottom: "1px solid rgba(157,187,155,0.15)" }}
+        style={{ borderBottom: `1px solid ${C.sageBorder}` }}
       >
         <button
           onClick={() => navigate("/")}
           className="flex items-center justify-center rounded-lg"
           style={{
-            width: 36,
-            height: 36,
+            width: 44,
+            height: 44,
             background: "rgba(247,249,247,0.06)",
-            border: "1px solid rgba(157,187,155,0.2)",
-            color: "rgba(255,255,255,0.7)",
+            border: `1px solid ${C.sageBorder}`,
+            color: C.textOnDarkSub,
           }}
           aria-label="Go back to home"
         >
           <ChevronLeft size={18} />
         </button>
         <div>
-          <h1 style={{ color: "#FFFFFF", fontSize: 17, fontWeight: 700, fontFamily: "inherit" }}>
+          <h1 style={{ color: C.textOnDark, fontSize: T.h3, fontWeight: 700, fontFamily: "inherit" }}>
             Health Labs
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, fontFamily: "inherit" }}>
+          <p style={{ color: C.textOnDarkMuted, fontSize: T.micro, fontFamily: "inherit" }}>
             Observations – Vitals & Results
           </p>
         </div>
@@ -219,19 +224,21 @@ export function ObservationsList() {
         <button
           className="ml-auto flex items-center gap-1.5 rounded-xl px-3 py-2"
           style={{
-            background: "#9DBB9B",
-            color: "#3B3D40",
-            fontSize: 11,
+            background: C.sage,
+            color: C.cardText,
+            fontSize: T.micro,
             fontWeight: 700,
-            border: "1px solid rgba(157,187,155,0.4)",
+            border: `1px solid ${C.sageBorder}`,
             fontFamily: "inherit",
+            minHeight: L.touch,
           }}
           aria-label="Log new vital"
+          onClick={() => setShowLogModal(true)}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#86A684";
+            (e.currentTarget as HTMLButtonElement).style.background = C.sageHover;
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#9DBB9B";
+            (e.currentTarget as HTMLButtonElement).style.background = C.sage;
           }}
         >
           <Activity size={11} />
@@ -239,13 +246,13 @@ export function ObservationsList() {
         </button>
       </div>
 
-      <div className="flex flex-col gap-4 p-4">
+      <div className="flex flex-col gap-4 p-4" aria-live="polite">
         {/* Attention needed */}
         {warnings.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3 px-1">
-              <AlertTriangle size={12} color="#D9A596" />
-              <p style={{ color: "#9B5940", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
+              <AlertTriangle size={12} color={C.terracotta} />
+              <p style={{ color: C.terracottaDark, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
                 ATTENTION NEEDED ({warnings.length})
               </p>
             </div>
@@ -260,8 +267,8 @@ export function ObservationsList() {
         {/* Normal readings */}
         <div>
           <div className="flex items-center gap-2 mb-3 px-1">
-            <CheckCircle size={12} color="#9DBB9B" />
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
+            <CheckCircle size={12} color={C.sage} />
+            <p style={{ color: C.textOnDarkSub, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
               NORMAL READINGS ({normals.length})
             </p>
           </div>
@@ -272,6 +279,16 @@ export function ObservationsList() {
           </div>
         </div>
       </div>
+
+      <LogVitalsModal
+        open={showLogModal}
+        onClose={() => setShowLogModal(false)}
+        onLog={async (type, value, unit, status, loincCode) => {
+          await logObservation(type, value, unit, status, loincCode);
+          refetch();
+        }}
+        logging={loggingObs}
+      />
     </div>
   );
 }

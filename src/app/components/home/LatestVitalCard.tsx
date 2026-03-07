@@ -76,7 +76,7 @@ export function LatestVitalCard() {
         </span>
       </div>
 
-      <div className="px-5 py-4">
+      <div className="px-5 py-4" aria-live="polite">
         <div className="flex items-start justify-between gap-4">
           {/* Vital reading */}
           <div className="flex-1">

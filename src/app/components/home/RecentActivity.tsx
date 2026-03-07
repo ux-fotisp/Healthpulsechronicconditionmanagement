@@ -217,7 +217,7 @@ export function RecentActivity() {
           </p>
         </div>
       ) : (
-        <div className="px-5 pb-2">
+        <div className="px-5 pb-2" aria-live="polite">
           {entries.map((entry, i) => (
             <TimelineItem key={`${entry.kind}-${entry.data.id}-${i}`} entry={entry} />
           ))}

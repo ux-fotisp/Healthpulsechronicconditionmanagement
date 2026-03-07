@@ -77,7 +77,7 @@ export function TodaysSummary() {
       </div>
 
       {/* Metrics grid */}
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-3" aria-live="polite" aria-atomic="true">
         {metrics.map((metric, i) => (
           <div
             key={metric.label}

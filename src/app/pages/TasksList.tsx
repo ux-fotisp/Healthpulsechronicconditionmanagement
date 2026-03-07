@@ -9,36 +9,36 @@ import { useNavigate } from "react-router";
 import { useTasks, useToggleTask } from "../hooks/useHealthData";
 import { hydrateTasks, MOCK_NOW, formatDateTime, type Task } from "../data/helpers";
 import { PageSkeleton } from "../components/shared/LoadingSkeleton";
+import { C, T, L } from "../design/tokens";
 import { toast } from "sonner";
 
 function priorityColor(priority: string): string {
-  if (priority === "high") return "#D9A596";
-  if (priority === "medium") return "#C9A070";
-  return "#9DBB9B";
+  if (priority === "high") return C.terracotta;
+  if (priority === "medium") return C.amber;
+  return C.sage;
 }
 
 function priorityTextColor(priority: string): string {
-  if (priority === "high") return "#9B5940";
-  if (priority === "medium") return "#7A5A28";
-  return "#5A7D58";
+  if (priority === "high") return C.terracottaDark;
+  if (priority === "medium") return C.amberDark;
+  return C.sageDark;
 }
 
 function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: string, status: string) => void }) {
-  const isOverdue =
-    task.status === "pending" && task.dueDate < MOCK_NOW;
+  const isOverdue = task.status === "pending" && task.dueDate < MOCK_NOW;
   const isCompleted = task.status === "completed";
 
   const StatusIcon = isCompleted ? CheckCircle : isOverdue ? AlertTriangle : Clock;
-  const statusIconColor = isCompleted ? "#9DBB9B" : isOverdue ? "#D9A596" : "rgba(59,61,64,0.4)";
-  const statusTextColor = isCompleted ? "#5A7D58" : isOverdue ? "#9B5940" : "rgba(59,61,64,0.5)";
+  const statusIconColor = isCompleted ? C.sage : isOverdue ? C.terracotta : C.cardTextFaint;
+  const statusTextColor = isCompleted ? C.sageDark : isOverdue ? C.terracottaDark : C.cardTextSub;
   const statusLabel = isCompleted ? "COMPLETED" : isOverdue ? "OVERDUE" : "PENDING";
 
   return (
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: isOverdue ? "rgba(247,249,247,0.97)" : "#F7F9F7",
-        border: `1px solid ${isOverdue ? "rgba(217,165,150,0.4)" : isCompleted ? "rgba(157,187,155,0.25)" : "#BABCBF"}`,
+        background: isOverdue ? "rgba(247,249,247,0.97)" : C.cardBg,
+        border: `1px solid ${isOverdue ? C.terracottaBorder : isCompleted ? C.sageBorder : C.cardBorder}`,
         opacity: isCompleted ? 0.65 : 1,
       }}
     >
@@ -48,10 +48,10 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: string, statu
           className="flex flex-col items-center gap-1 flex-shrink-0 mt-0.5"
           onClick={() => onToggle(task.id, task.status)}
           aria-label={isCompleted ? `Mark "${task.description}" as pending` : `Mark "${task.description}" as completed`}
-          style={{ background: "transparent", border: "none", cursor: "pointer", padding: 0 }}
+          style={{ background: "transparent", border: "none", cursor: "pointer", padding: 8, margin: -8, minWidth: 36, minHeight: 36 }}
         >
           {isCompleted ? (
-            <CheckCircle size={20} color="#9DBB9B" />
+            <CheckCircle size={20} color={C.sage} />
           ) : (
             <div
               className="rounded-full"
@@ -74,8 +74,8 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: string, statu
         <div className="flex-1 min-w-0">
           <p
             style={{
-              color: isCompleted ? "rgba(59,61,64,0.5)" : "#3B3D40",
-              fontSize: 13,
+              color: isCompleted ? C.cardTextSub : C.cardText,
+              fontSize: T.bodySm,
               fontWeight: 600,
               lineHeight: 1.4,
               fontFamily: "inherit",
@@ -87,8 +87,8 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: string, statu
 
           <div className="flex items-center gap-3 mt-2 flex-wrap">
             <div className="flex items-center gap-1">
-              <Clock size={10} color="rgba(59,61,64,0.35)" />
-              <span style={{ color: isOverdue ? "#9B5940" : "rgba(59,61,64,0.45)", fontSize: 10, fontFamily: "inherit" }}>
+              <Clock size={T.nano} color={C.cardTextFaint} />
+              <span style={{ color: isOverdue ? C.terracottaDark : C.cardTextSub, fontSize: T.nano, fontFamily: "inherit" }}>
                 {isCompleted && task.completedAt
                   ? `Done: ${formatDateTime(task.completedAt)}`
                   : `Due: ${formatDateTime(task.dueDate)}`}
@@ -100,10 +100,10 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: string, statu
                 background: `${priorityColor(task.priority)}18`,
                 border: `1px solid ${priorityColor(task.priority)}35`,
                 color: priorityTextColor(task.priority),
-                fontSize: 9,
+                fontSize: T.pill,
                 fontWeight: 700,
                 padding: "1px 6px",
-                borderRadius: 100,
+                borderRadius: L.rFull,
                 letterSpacing: "0.08em",
                 fontFamily: "inherit",
               }}
@@ -113,11 +113,11 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: string, statu
           </div>
 
           <div className="flex items-center gap-1 mt-2">
-            <StatusIcon size={10} color={statusIconColor} />
+            <StatusIcon size={T.nano} color={statusIconColor} />
             <span
               style={{
                 color: statusTextColor,
-                fontSize: 9,
+                fontSize: T.pill,
                 fontWeight: 700,
                 letterSpacing: "0.08em",
                 fontFamily: "inherit",
@@ -158,31 +158,31 @@ export function TasksList() {
   }
 
   return (
-    <div style={{ background: "#1A2B1C", minHeight: "100vh" }}>
+    <div style={{ background: C.shellAlt, minHeight: "100vh" }}>
       {/* Top bar */}
       <div
         className="flex items-center gap-3 px-4 pt-10 pb-4"
-        style={{ borderBottom: "1px solid rgba(157,187,155,0.15)" }}
+        style={{ borderBottom: `1px solid ${C.sageBorder}` }}
       >
         <button
           onClick={() => navigate("/")}
           className="flex items-center justify-center rounded-lg"
           style={{
-            width: 36,
-            height: 36,
+            width: 44,
+            height: 44,
             background: "rgba(247,249,247,0.06)",
-            border: "1px solid rgba(157,187,155,0.2)",
-            color: "rgba(255,255,255,0.7)",
+            border: `1px solid ${C.sageBorder}`,
+            color: C.textOnDarkSub,
           }}
           aria-label="Go back to home"
         >
           <ChevronLeft size={18} />
         </button>
         <div>
-          <h1 style={{ color: "#FFFFFF", fontSize: 17, fontWeight: 700, fontFamily: "inherit" }}>
+          <h1 style={{ color: C.textOnDark, fontSize: T.h3, fontWeight: 700, fontFamily: "inherit" }}>
             Care Plan
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, fontFamily: "inherit" }}>
+          <p style={{ color: C.textOnDarkMuted, fontSize: T.micro, fontFamily: "inherit" }}>
             Tasks – Daily Health To-Dos
           </p>
         </div>
@@ -191,12 +191,12 @@ export function TasksList() {
           style={{
             width: 28,
             height: 28,
-            background: overdue.length > 0 ? "rgba(217,165,150,0.15)" : "rgba(157,187,155,0.12)",
-            border: `1px solid ${overdue.length > 0 ? "rgba(217,165,150,0.35)" : "rgba(157,187,155,0.3)"}`,
+            background: overdue.length > 0 ? "rgba(217,165,150,0.15)" : C.sageLight,
+            border: `1px solid ${overdue.length > 0 ? C.terracottaBorder : C.sageBorder}`,
           }}
           aria-label={`${overdue.length} overdue tasks`}
         >
-          <span style={{ color: overdue.length > 0 ? "#9B5940" : "#5A7D58", fontSize: 11, fontWeight: 800, fontFamily: "inherit" }}>
+          <span style={{ color: overdue.length > 0 ? C.terracottaDark : C.sageDark, fontSize: T.micro, fontWeight: 800, fontFamily: "inherit" }}>
             {pending.length + overdue.length}
           </span>
         </div>
@@ -206,8 +206,8 @@ export function TasksList() {
         {overdue.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3 px-1">
-              <AlertTriangle size={12} color="#D9A596" />
-              <p style={{ color: "#9B5940", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
+              <AlertTriangle size={12} color={C.terracotta} />
+              <p style={{ color: C.terracottaDark, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
                 OVERDUE ({overdue.length})
               </p>
             </div>
@@ -220,8 +220,8 @@ export function TasksList() {
         {pending.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3 px-1">
-              <Clock size={12} color="rgba(255,255,255,0.4)" />
-              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
+              <Clock size={12} color={C.textOnDarkMuted} />
+              <p style={{ color: C.textOnDarkSub, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
                 PENDING ({pending.length})
               </p>
             </div>
@@ -234,8 +234,8 @@ export function TasksList() {
         {completed.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3 px-1">
-              <CheckCircle size={12} color="#9DBB9B" />
-              <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
+              <CheckCircle size={12} color={C.sage} />
+              <p style={{ color: C.textOnDarkMuted, fontSize: T.nano, fontWeight: 700, letterSpacing: "0.1em", fontFamily: "inherit" }}>
                 COMPLETED ({completed.length})
               </p>
             </div>
@@ -248,11 +248,11 @@ export function TasksList() {
         {tasks.length === 0 && (
           <div
             className="flex flex-col items-center justify-center py-10 rounded-2xl"
-            style={{ border: "1px solid #BABCBF", background: "#F7F9F7" }}
+            style={{ border: `1px solid ${C.cardBorder}`, background: C.cardBg }}
             role="status"
           >
-            <ClipboardList size={28} color="rgba(59,61,64,0.25)" />
-            <p style={{ color: "rgba(59,61,64,0.4)", fontSize: 13, fontFamily: "inherit", marginTop: 8 }}>
+            <ClipboardList size={28} color={C.cardTextFaint} />
+            <p style={{ color: C.cardTextMuted, fontSize: T.bodySm, fontFamily: "inherit", marginTop: 8 }}>
               No tasks due today
             </p>
           </div>
