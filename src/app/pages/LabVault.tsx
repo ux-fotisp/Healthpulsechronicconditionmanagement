@@ -39,6 +39,7 @@ function BiometricGate({
   const [pin, setPin] = useState(["", "", "", ""]);
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const refs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -49,6 +50,30 @@ function BiometricGate({
   useEffect(() => {
     refs[0].current?.focus();
   }, []);
+
+  // Focus trap + Escape to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onCancel();
+      if (e.key === "Tab" && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button, input, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onCancel]);
 
   function handleChange(index: number, value: string) {
     if (!/^\d?$/.test(value)) return;
@@ -99,6 +124,7 @@ function BiometricGate({
         className="rounded-2xl p-6 w-full max-w-[340px] mx-4"
         style={{ background: C.bg, border: `1px solid ${C.border}` }}
         onClick={(e) => e.stopPropagation()}
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={`Unlock ${resultTitle}`}
@@ -244,7 +270,7 @@ export function LabVault() {
         <button
           onClick={() => navigate("/")}
           className="flex items-center justify-center rounded-xl"
-          style={{ width: 44, height: 44, background: "rgba(251,251,251,0.06)", border: "1px solid rgba(142,175,157,0.2)", color: C.textOnDark }}
+          style={{ width: L.touch, height: L.touch, background: "rgba(251,251,251,0.06)", border: "1px solid rgba(142,175,157,0.2)", color: C.textOnDark }}
           aria-label="Go back to home"
         >
           <ChevronLeft size={18} />
@@ -356,7 +382,7 @@ export function LabVault() {
                     background: isUnlocked ? C.sageLight : C.tealLight,
                     border: `1px solid ${isUnlocked ? C.sageBorder : C.tealBorder}`,
                     color: isUnlocked ? C.sageDark : C.tealDark,
-                    fontSize: T.bodySm - 1,
+                    fontSize: T.bodySm,
                     fontWeight: 700,
                     fontFamily: "inherit",
                     minHeight: L.touch,

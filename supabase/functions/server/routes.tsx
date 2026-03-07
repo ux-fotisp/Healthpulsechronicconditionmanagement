@@ -611,6 +611,95 @@ routes.delete(`${PREFIX}/glucose-entries/:patientId/:id`, async (c) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+//  DAILY CHECK-INS (Sprint 5 — Behavioral Scaffolding)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /checkins/:patientId — List all check-ins */
+routes.get(`${PREFIX}/checkins/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const data = await kv.getByPrefix(`checkin:${pid}:`);
+    return c.json(data);
+  } catch (e: any) {
+    return errJson(c, `Error listing check-ins: ${e.message}`);
+  }
+});
+
+/** GET /checkins/:patientId/today — Today's check-in only */
+routes.get(`${PREFIX}/checkins/:patientId/today`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const today = new Date().toISOString().split("T")[0];
+    const data = await kv.get(`checkin:${pid}:${today}`);
+    return c.json(data || null);
+  } catch (e: any) {
+    return errJson(c, `Error fetching today's check-in: ${e.message}`);
+  }
+});
+
+/** POST /checkins/:patientId — Create or update today's check-in */
+routes.post(`${PREFIX}/checkins/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const today = new Date().toISOString().split("T")[0];
+    const id = body.id || `CK-${today}`;
+    const entry = { ...body, id, patientId: pid, date: today, savedAt: new Date().toISOString() };
+    await kv.set(`checkin:${pid}:${today}`, entry);
+    return c.json(entry, 201);
+  } catch (e: any) {
+    return errJson(c, `Error saving check-in: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  EMOTIONAL CHECK-INS (Sprint 5 — Behavioral Scaffolding)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /emotional-checkins/:patientId — List all emotional check-ins */
+routes.get(`${PREFIX}/emotional-checkins/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const data = await kv.getByPrefix(`emotion:${pid}:`);
+    return c.json(data);
+  } catch (e: any) {
+    return errJson(c, `Error listing emotional check-ins: ${e.message}`);
+  }
+});
+
+/** POST /emotional-checkins/:patientId — Create emotional check-in */
+routes.post(`${PREFIX}/emotional-checkins/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const id = body.id || `EM${Date.now()}`;
+    const entry = { ...body, id, patientId: pid, timestamp: new Date().toISOString() };
+    await kv.set(`emotion:${pid}:${id}`, entry);
+    return c.json(entry, 201);
+  } catch (e: any) {
+    return errJson(c, `Error saving emotional check-in: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  MISSED DOSE RECOVERY (Sprint 5 — Behavioral Scaffolding)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** POST /dose-recovery/:patientId — Log missed dose recovery action */
+routes.post(`${PREFIX}/dose-recovery/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const id = body.id || `DR${Date.now()}`;
+    const entry = { ...body, id, patientId: pid, timestamp: new Date().toISOString() };
+    await kv.set(`dose_recovery:${pid}:${id}`, entry);
+    return c.json(entry, 201);
+  } catch (e: any) {
+    return errJson(c, `Error saving dose recovery: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 //  AGGREGATE: Dashboard data (reduces round-trips)
 // ═══════════════════════════════════════════════════════════════════════════════
 

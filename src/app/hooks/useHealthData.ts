@@ -398,3 +398,77 @@ export function useLogGlucoseEntry() {
 
   return { logEntry, loading };
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 5 — BEHAVIORAL SCAFFOLDING HOOKS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** Today's daily check-in */
+export function useTodayCheckIn() {
+  return useSeededQuery(() => api.getTodayCheckIn());
+}
+
+/** All check-ins */
+export function useCheckIns() {
+  return useSeededQuery(() => api.getCheckIns());
+}
+
+/** Save daily check-in */
+export function useSaveCheckIn() {
+  const [loading, setLoading] = useState(false);
+
+  const save = useCallback(async (data: Omit<api.CheckInDTO, "id" | "patientId" | "date" | "savedAt">) => {
+    setLoading(true);
+    try {
+      const result = await api.createCheckIn(data);
+      return result;
+    } catch (e: any) {
+      console.error("[useSaveCheckIn]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { save, loading };
+}
+
+/** Save emotional check-in */
+export function useSaveEmotionalCheckIn() {
+  const [loading, setLoading] = useState(false);
+
+  const save = useCallback(async (data: Omit<api.EmotionalCheckInDTO, "id" | "patientId" | "timestamp">) => {
+    setLoading(true);
+    try {
+      const result = await api.createEmotionalCheckIn(data);
+      return result;
+    } catch (e: any) {
+      console.error("[useSaveEmotionalCheckIn]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { save, loading };
+}
+
+/** Save missed dose recovery action */
+export function useSaveDoseRecovery() {
+  const [loading, setLoading] = useState(false);
+
+  const save = useCallback(async (data: Omit<api.DoseRecoveryDTO, "id" | "patientId" | "timestamp">) => {
+    setLoading(true);
+    try {
+      const result = await api.createDoseRecovery(data);
+      return result;
+    } catch (e: any) {
+      console.error("[useSaveDoseRecovery]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { save, loading };
+}

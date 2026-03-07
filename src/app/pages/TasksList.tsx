@@ -4,6 +4,7 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
+  PartyPopper,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useTasks, useToggleTask } from "../hooks/useHealthData";
@@ -48,7 +49,7 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: string, statu
           className="flex flex-col items-center gap-1 flex-shrink-0 mt-0.5"
           onClick={() => onToggle(task.id, task.status)}
           aria-label={isCompleted ? `Mark "${task.description}" as pending` : `Mark "${task.description}" as completed`}
-          style={{ background: "transparent", border: "none", cursor: "pointer", padding: 8, margin: -8, minWidth: 36, minHeight: 36 }}
+          style={{ background: "transparent", border: "none", cursor: "pointer", padding: 18, margin: -18, minWidth: L.touch, minHeight: L.touch, display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           {isCompleted ? (
             <CheckCircle size={20} color={C.sage} />
@@ -75,7 +76,7 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: string, statu
           <p
             style={{
               color: isCompleted ? C.cardTextSub : C.cardText,
-              fontSize: T.bodySm,
+              fontSize: T.caption,
               fontWeight: 600,
               lineHeight: 1.4,
               fontFamily: "inherit",
@@ -168,8 +169,8 @@ export function TasksList() {
           onClick={() => navigate("/")}
           className="flex items-center justify-center rounded-lg"
           style={{
-            width: 44,
-            height: 44,
+            width: L.touch,
+            height: L.touch,
             background: "rgba(247,249,247,0.06)",
             border: `1px solid ${C.sageBorder}`,
             color: C.textOnDarkSub,
@@ -254,6 +255,28 @@ export function TasksList() {
             <ClipboardList size={28} color={C.cardTextFaint} />
             <p style={{ color: C.cardTextMuted, fontSize: T.bodySm, fontFamily: "inherit", marginTop: 8 }}>
               No tasks due today
+            </p>
+          </div>
+        )}
+
+        {/* All caught up state — when pending+overdue are empty but completed tasks exist */}
+        {tasks.length > 0 && overdue.length === 0 && pending.length === 0 && (
+          <div
+            className="flex flex-col items-center justify-center py-8 rounded-2xl"
+            style={{ background: C.sageLight, border: `1px solid ${C.sageBorder}` }}
+            role="status"
+          >
+            <div
+              className="flex items-center justify-center rounded-full mb-3"
+              style={{ width: 52, height: 52, background: C.sage, border: `1px solid ${C.sageBorder}` }}
+            >
+              <PartyPopper size={24} color={C.cardText} />
+            </div>
+            <p style={{ color: C.sageDark, fontSize: T.bodyMd, fontWeight: 700, fontFamily: "inherit" }}>
+              All caught up!
+            </p>
+            <p style={{ color: C.cardTextSub, fontSize: T.bodySm, fontFamily: "inherit", marginTop: 4, textAlign: "center", maxWidth: 260 }}>
+              No pending tasks. You're doing great with your care plan today.
             </p>
           </div>
         )}

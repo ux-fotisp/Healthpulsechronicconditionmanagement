@@ -224,12 +224,11 @@ export function MedicationsList() {
           onClick={() => navigate("/")}
           className="flex items-center justify-center rounded-xl"
           style={{
-            width:      44,
-            height:     44,
+            width:      L.touch,
+            height:     L.touch,
             background: "rgba(251,251,251,0.06)",
             border:     "1px solid rgba(142,175,157,0.2)",
             color:      C.textOnDark,
-            minHeight:  "auto",
           }}
           aria-label="Go back to home"
         >

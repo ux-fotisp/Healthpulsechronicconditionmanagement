@@ -7,12 +7,16 @@
 import { Bell, Activity, Pill, Calendar, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { C, T, L } from "../../design/tokens";
 
-interface Reminder {
+export interface Reminder {
   id:     string;
   icon:   React.ComponentType<{ size?: number; color?: string }>;
   text:   string;
   detail: string;
   status: "upcoming" | "overdue" | "immediate";
+  /** Medication name tied to overdue dose reminders */
+  medicationName?: string;
+  medicationDosage?: string;
+  medicationInstruction?: string;
 }
 
 const reminders: Reminder[] = [
@@ -22,6 +26,9 @@ const reminders: Reminder[] = [
     text:   "Morning medication dose overdue",
     detail: "Lisinopril 10mg · Was due at 9:00 AM",
     status: "overdue",
+    medicationName: "Lisinopril",
+    medicationDosage: "10mg",
+    medicationInstruction: "Take with food",
   },
   {
     id:     "R002",
@@ -66,18 +73,56 @@ const STATUS_MAP = {
   },
 };
 
-function ReminderItem({ reminder }: { reminder: Reminder }) {
+function ReminderItem({
+  reminder,
+  onOverdueClick,
+}: {
+  reminder: Reminder;
+  onOverdueClick?: (reminder: Reminder) => void;
+}) {
   const cfg               = STATUS_MAP[reminder.status];
   const { icon: RemIcon } = reminder;
   const { Icon: StatusIcon } = cfg;
 
+  const isOverdue = reminder.status === "overdue" || reminder.status === "immediate";
+  const isClickable = isOverdue && !!onOverdueClick;
+
+  function handleClick() {
+    if (isClickable) onOverdueClick!(reminder);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (isClickable && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      onOverdueClick!(reminder);
+    }
+  }
+
   return (
     <div
-      className="flex items-start gap-3 rounded-xl p-3"
+      className={`flex items-start gap-3 rounded-xl p-3 ${isClickable ? "cursor-pointer" : ""}`}
       style={{
         background: cfg.bg,
         border:     `1px solid ${cfg.border}`,
         minHeight:  L.touch,              /* 56px touch target */
+        transition: "box-shadow 0.15s, border-color 0.15s",
+      }}
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      aria-label={isClickable ? `${reminder.text} — tap to open routine reminder` : undefined}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      onMouseEnter={(e) => {
+        if (isClickable) {
+          (e.currentTarget as HTMLDivElement).style.borderColor = cfg.iconColor;
+          (e.currentTarget as HTMLDivElement).style.boxShadow = `0 2px 12px ${cfg.iconColor}30`;
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (isClickable) {
+          (e.currentTarget as HTMLDivElement).style.borderColor = cfg.border;
+          (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+        }
       }}
     >
       {/* Type icon */}
@@ -136,13 +181,32 @@ function ReminderItem({ reminder }: { reminder: Reminder }) {
           >
             {cfg.label}
           </span>
+          {isClickable && (
+            <span
+              style={{
+                color:      cfg.textColor,
+                fontSize:   T.nano,
+                fontWeight: 600,
+                fontFamily: "inherit",
+                marginLeft: 4,
+                opacity:    0.75,
+              }}
+              aria-hidden="true"
+            >
+              · Tap to resolve
+            </span>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-export function RemindersSection() {
+interface RemindersSectionProps {
+  onOverdueClick?: (reminder: Reminder) => void;
+}
+
+export function RemindersSection({ onOverdueClick }: RemindersSectionProps) {
   const overdueCount = reminders.filter(
     (r) => r.status === "overdue" || r.status === "immediate"
   ).length;
@@ -199,7 +263,7 @@ export function RemindersSection() {
       {/* List */}
       <div className="p-4 flex flex-col gap-2.5" aria-live="polite">
         {reminders.map((r) => (
-          <ReminderItem key={r.id} reminder={r} />
+          <ReminderItem key={r.id} reminder={r} onOverdueClick={onOverdueClick} />
         ))}
       </div>
     </div>

@@ -164,7 +164,7 @@ export const getAdherence = (pid = PID) =>
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  ADHERENCE STREAKS
-// ═══════════════════════════════════════════════════════════════════════════════
+// ══════════��════════════════════════════════════════════════════════════════════
 
 export interface StreakDTO {
   medicationId: string;
@@ -477,3 +477,73 @@ export const createGlucoseEntry = (data: Omit<GlucoseEntryDTO, "id" | "patientId
   post<GlucoseEntryDTO>(`/glucose-entries/${pid}`, data);
 export const deleteGlucoseEntry = (entryId: string, pid = PID) =>
   del<{ deleted: boolean }>(`/glucose-entries/${pid}/${entryId}`);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  DAILY CHECK-INS (Sprint 5 — Behavioral Scaffolding)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface CheckInDTO {
+  id: string;
+  patientId: string;
+  date: string;
+  savedAt: string;
+  // Condition-specific fields
+  energyLevel: number;          // 1–5 scale
+  painLevel: number;            // 0–10 scale
+  sleepQuality: number;         // 1–5 scale
+  moodRating: number;           // 1–5 scale
+  symptoms: string[];           // free-text symptom tags
+  conditionChecks: {            // condition-specific Q&A
+    question: string;
+    answer: string | boolean | number;
+  }[];
+  notes: string;
+}
+
+export const getCheckIns = (pid = PID) =>
+  get<CheckInDTO[]>(`/checkins/${pid}`);
+export const getTodayCheckIn = (pid = PID) =>
+  get<CheckInDTO | null>(`/checkins/${pid}/today`);
+export const createCheckIn = (data: Omit<CheckInDTO, "id" | "patientId" | "date" | "savedAt">, pid = PID) =>
+  post<CheckInDTO>(`/checkins/${pid}`, data);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  EMOTIONAL CHECK-INS (Sprint 5 — Behavioral Scaffolding)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface EmotionalCheckInDTO {
+  id: string;
+  patientId: string;
+  timestamp: string;
+  triggerType: string;          // "abnormal_reading" | "missed_dose" | "manual"
+  triggerDetail: string;        // e.g., "BP 155/98 — High"
+  emotion: string;              // "worried" | "calm" | "frustrated" | "anxious" | "hopeful" | "neutral"
+  intensityLevel: number;       // 1–5
+  copingAction: string;         // what the user plans to do
+  notes: string;
+}
+
+export const getEmotionalCheckIns = (pid = PID) =>
+  get<EmotionalCheckInDTO[]>(`/emotional-checkins/${pid}`);
+export const createEmotionalCheckIn = (data: Omit<EmotionalCheckInDTO, "id" | "patientId" | "timestamp">, pid = PID) =>
+  post<EmotionalCheckInDTO>(`/emotional-checkins/${pid}`, data);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  MISSED DOSE RECOVERY (Sprint 5 — Behavioral Scaffolding)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface DoseRecoveryDTO {
+  id: string;
+  patientId: string;
+  timestamp: string;
+  medicationId: string;
+  medicationName: string;
+  dosage: string;
+  missedAt: string;
+  recoveryAction: "take_now" | "skip_dose" | "half_dose" | "contact_provider";
+  reason: string;
+  notes: string;
+}
+
+export const createDoseRecovery = (data: Omit<DoseRecoveryDTO, "id" | "patientId" | "timestamp">, pid = PID) =>
+  post<DoseRecoveryDTO>(`/dose-recovery/${pid}`, data);

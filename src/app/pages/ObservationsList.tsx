@@ -202,8 +202,8 @@ export function ObservationsList() {
           onClick={() => navigate("/")}
           className="flex items-center justify-center rounded-lg"
           style={{
-            width: 44,
-            height: 44,
+            width: L.touch,
+            height: L.touch,
             background: "rgba(247,249,247,0.06)",
             border: `1px solid ${C.sageBorder}`,
             color: C.textOnDarkSub,
