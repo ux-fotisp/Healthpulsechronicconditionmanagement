@@ -361,9 +361,9 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
               className="w-full rounded-xl flex items-center justify-center gap-2 transition-all"
               style={{
                 minHeight: L.touch,
-                background: C.primary,
-                border: `1px solid ${C.primaryBorder}`,
-                color: C.text,
+                background: "#4A4D4C",
+                border: "1px solid rgba(142,175,157,0.4)",
+                color: "#FFFFFF",
                 fontSize: T.bodySm,
                 fontWeight: 700,
                 fontFamily: "inherit",
@@ -495,7 +495,7 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
               <button
                 onClick={() => setShowInput(false)}
                 className="flex-1 rounded-xl flex items-center justify-center transition-all"
-                style={{ minHeight: L.touch, background: C.secondaryLight, border: `1px solid ${C.secondaryBorder}`, color: C.textSub, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }}
+                style={{ minHeight: L.touch, background: "#4A4D4C", border: "1px solid rgba(142,175,157,0.4)", color: "#FFFFFF", fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }}
               >
                 Cancel
               </button>
@@ -505,16 +505,16 @@ export function BloodPressureMonitor({ onClose }: BloodPressureMonitorProps) {
                 className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all"
                 style={{
                   minHeight: L.touch,
-                  background: systolic && diastolic ? C.primary : C.borderLight,
-                  border: `1px solid ${C.primaryBorder}`,
-                  color: systolic && diastolic ? C.text : C.textMuted,
+                  background: systolic && diastolic ? "#4A4D4C" : C.borderLight,
+                  border: "1px solid rgba(142,175,157,0.4)",
+                  color: systolic && diastolic ? "#FFFFFF" : C.textMuted,
                   fontSize: T.bodySm,
                   fontWeight: 700,
                   fontFamily: "inherit",
                 }}
                 aria-label="Save blood pressure reading"
               >
-                <Heart size={14} />
+                <Heart size={14} color={systolic && diastolic ? "#FFFFFF" : C.textMuted} />
                 Log Reading
               </button>
             </div>

@@ -350,7 +350,7 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
           <>
             {!showInput && (
               <div className="mx-5 mt-4">
-                <button onClick={() => setShowInput(true)} className="w-full rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: C.primary, border: `1px solid ${C.primaryBorder}`, color: C.text, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }} aria-label="Log new glucose reading">
+                <button onClick={() => setShowInput(true)} className="w-full rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: "#4A4D4C", border: "1px solid rgba(142,175,157,0.4)", color: "#FFFFFF", fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }} aria-label="Log new glucose reading">
                   <Plus size={16} />
                   {illnessStage === "stable" ? "Quick Log Entry" : "Log Detailed Reading"}
                 </button>
@@ -407,8 +407,8 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
                 )}
                 <div className="mb-4"><label style={{ color: C.textSub, fontSize: T.nano, fontWeight: 600, fontFamily: "inherit" }}>Notes</label><input type="text" placeholder="Additional notes..." value={inputNotes} onChange={(e) => setInputNotes(e.target.value)} style={{ ...inputStyle, marginTop: 4, fontSize: T.bodySm }} aria-label="Notes" /></div>
                 <div className="flex gap-3">
-                  <button onClick={resetForm} className="flex-1 rounded-xl flex items-center justify-center transition-all" style={{ minHeight: L.touch, background: C.secondaryLight, border: `1px solid ${C.secondaryBorder}`, color: C.textSub, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }}>Cancel</button>
-                  <button onClick={handleLog} disabled={!glucose} className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: glucose ? C.primary : C.borderLight, border: `1px solid ${C.primaryBorder}`, color: glucose ? C.text : C.textMuted, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }} aria-label="Save glucose reading"><Droplets size={14} />Log Reading</button>
+                  <button onClick={resetForm} className="flex-1 rounded-xl flex items-center justify-center transition-all" style={{ minHeight: L.touch, background: "#4A4D4C", border: "1px solid rgba(142,175,157,0.4)", color: "#FFFFFF", fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }}>Cancel</button>
+                  <button onClick={handleLog} disabled={!glucose} className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: glucose ? "#4A4D4C" : C.borderLight, border: "1px solid rgba(142,175,157,0.4)", color: glucose ? "#FFFFFF" : C.textMuted, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }} aria-label="Save glucose reading"><Droplets size={14} color={glucose ? "#FFFFFF" : C.textMuted} />Log Reading</button>
                 </div>
               </div>
             )}

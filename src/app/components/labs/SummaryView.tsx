@@ -315,23 +315,23 @@ export function SummaryView({ onClose }: { onClose: () => void }) {
         <button
           onClick={handleShare}
           className="w-full rounded-2xl flex items-center justify-center gap-3 transition-all"
-          style={{ background: shared ? C.successLight : C.primary, border: "1px solid rgba(142,175,157,0.4)", color: shared ? C.successDark : C.text, fontSize: T.body, fontWeight: 700, fontFamily: "inherit", minHeight: L.touch }}
+          style={{ background: shared ? C.successLight : "#4A4D4C", border: "1px solid rgba(142,175,157,0.4)", color: shared ? C.successDark : "#FFFFFF", fontSize: T.body, fontWeight: 700, fontFamily: "inherit", minHeight: L.touch }}
           aria-label="Share summary with care team"
           aria-live="polite"
-          onMouseEnter={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark; }}
-          onMouseLeave={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = C.primary; }}
+          onMouseEnter={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+          onMouseLeave={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
         >
-          {shared ? <><CheckCheck size={18} color={C.success} />Sent to Care Team</> : <><Send size={18} />Share with Care Team</>}
+          {shared ? <><CheckCheck size={18} color={C.success} />Sent to Care Team</> : <><Send size={18} color="#FFFFFF" />Share with Care Team</>}
         </button>
         <button
           onClick={handlePrint}
           className="w-full rounded-2xl flex items-center justify-center gap-2 transition-all"
-          style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.text, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", minHeight: L.touch }}
+          style={{ background: "#4A4D4C", border: "1px solid rgba(142,175,157,0.4)", color: "#FFFFFF", fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", minHeight: L.touch }}
           aria-label="Print summary"
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.locked; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
         >
-          <Printer size={15} />
+          <Printer size={15} color="#FFFFFF" />
           Print Summary
         </button>
       </div>

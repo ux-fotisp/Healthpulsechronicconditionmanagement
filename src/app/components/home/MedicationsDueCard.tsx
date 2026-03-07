@@ -157,8 +157,8 @@ function MedRow({
             onClick={onLog}
             className="w-full rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
             style={{
-              background:    C.primary,
-              color:         C.text,
+              background:    "#4A4D4C",
+              color:         "#FFFFFF",
               fontSize:      T.body,        /* 18px — action button */
               fontWeight:    700,
               letterSpacing: "0.01em",
@@ -167,10 +167,10 @@ function MedRow({
               minHeight:     L.touch,       /* 56px WCAG touch target */
             }}
             aria-label={`Log intake of ${name} ${dosage} — ${instruction}`}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primary; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
           >
-            <Pill size={16} />
+            <Pill size={16} color="#FFFFFF" />
             Log Intake — {name} {dosage}
           </button>
         )}

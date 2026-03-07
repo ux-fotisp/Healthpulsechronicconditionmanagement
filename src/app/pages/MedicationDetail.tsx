@@ -17,7 +17,7 @@ import * as api from "../data/api";
 import type { PillShape } from "../components/shared/PillVisualizer";
 
 function RefillTank({ remaining, total, color }: { remaining: number; total: number; color: string }) {
-  const pct = Math.max(0, Math.min(1, remaining / total));
+  const pct = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
   const r = 52, cx = 64, cy = 64;
   const circumference = 2 * Math.PI * r;
   const offset = circumference * (1 - pct);

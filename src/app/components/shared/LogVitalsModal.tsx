@@ -298,14 +298,14 @@ export function LogVitalsModal({ open, onClose, onLog, logging }: LogVitalsModal
                 }}
                 className="mt-5 rounded-xl flex items-center justify-center gap-2"
                 style={{
-                  background: C.primary,
-                  color: C.shell,
+                  background: "#4A4D4C",
+                  color: "#FFFFFF",
                   fontSize: T.bodySm,
                   fontWeight: 700,
                   fontFamily: "inherit",
                   minHeight: L.touch,
                   padding: "0 24px",
-                  border: `1px solid ${C.primaryBorder}`,
+                  border: "1px solid rgba(142,175,157,0.4)",
                 }}
                 aria-label="Log another vital reading"
               >
@@ -503,13 +503,13 @@ export function LogVitalsModal({ open, onClose, onLog, logging }: LogVitalsModal
                 disabled={!value.trim() || logging}
                 className="w-full mt-5 rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
                 style={{
-                  background: value.trim() ? C.primary : C.locked,
-                  color: value.trim() ? C.shell : C.textMuted,
+                  background: value.trim() ? "#4A4D4C" : C.locked,
+                  color: value.trim() ? "#FFFFFF" : C.textMuted,
                   fontSize: T.body,
                   fontWeight: 700,
                   fontFamily: "inherit",
                   minHeight: L.touch,
-                  border: `1px solid ${value.trim() ? C.primaryBorder : C.border}`,
+                  border: `1px solid ${value.trim() ? "rgba(142,175,157,0.4)" : C.border}`,
                   opacity: logging ? 0.7 : 1,
                   cursor: value.trim() && !logging ? "pointer" : "not-allowed",
                 }}

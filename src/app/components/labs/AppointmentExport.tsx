@@ -695,10 +695,10 @@ export function AppointmentExport({ onClose }: { onClose: () => void }) {
           style={{
             width:        "100%",
             minHeight:    L.touch,
-            background:   shared ? C.successLight : C.primary,
+            background:   shared ? C.successLight : "#4A4D4C",
             border:       "1px solid rgba(142,175,157,0.4)",
             borderRadius: L.rXl,
-            color:        shared ? C.successDark : C.text,
+            color:        shared ? C.successDark : "#FFFFFF",
             fontSize:     T.body,
             fontWeight:   700,
             fontFamily:   "inherit",
@@ -710,12 +710,12 @@ export function AppointmentExport({ onClose }: { onClose: () => void }) {
           }}
           aria-label="Share appointment summary with care team"
           aria-live="polite"
-          onMouseEnter={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark; }}
-          onMouseLeave={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = C.primary; }}
+          onMouseEnter={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+          onMouseLeave={(e) => { if (!shared) (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
         >
           {shared
             ? <><CheckCheck size={18} color={C.success} /> Sent to Care Team</>
-            : <><Send size={18} /> Share with Doctor</>
+            : <><Send size={18} color="#FFFFFF" /> Share with Doctor</>
           }
         </button>
         <button
@@ -723,10 +723,10 @@ export function AppointmentExport({ onClose }: { onClose: () => void }) {
           style={{
             width:        "100%",
             minHeight:    L.touch,
-            background:   "transparent",
-            border:       `1px solid ${C.border}`,
+            background:   "#4A4D4C",
+            border:       "1px solid rgba(142,175,157,0.4)",
             borderRadius: L.rXl,
-            color:        C.text,
+            color:        "#FFFFFF",
             fontSize:     T.bodySm,
             fontWeight:   700,
             fontFamily:   "inherit",
@@ -737,8 +737,8 @@ export function AppointmentExport({ onClose }: { onClose: () => void }) {
             gap:          8,
           }}
           aria-label="Print appointment summary"
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.locked; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
         >
           <Printer size={15} />
           Print PDF — 1 Page

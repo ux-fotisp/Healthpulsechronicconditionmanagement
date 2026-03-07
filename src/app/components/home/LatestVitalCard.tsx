@@ -203,8 +203,8 @@ export function LatestVitalCard() {
             onClick={() => navigate("/observations")}
             className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
             style={{
-              background:  C.primary,
-              color:       C.text,
+              background:  "#4A4D4C",
+              color:       "#FFFFFF",
               fontSize:    T.bodySm,
               fontWeight:  700,
               letterSpacing: "0.02em",
@@ -213,10 +213,10 @@ export function LatestVitalCard() {
               minHeight:   L.touch,          /* 56px */
             }}
             aria-label="Log new vital reading"
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primary; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
           >
-            <Activity size={14} />
+            <Activity size={14} color="#FFFFFF" />
             Log Vitals
           </button>
           <button

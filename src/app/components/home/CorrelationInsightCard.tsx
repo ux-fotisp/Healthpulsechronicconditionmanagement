@@ -365,9 +365,9 @@ export function CorrelationInsightCard() {
               onClick={handleAdjust}
               className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
               style={{
-                background:    C.primary,
+                background:    "#4A4D4C",
                 border:        "1px solid rgba(142,175,157,0.4)",
-                color:         C.text,
+                color:         "#FFFFFF",
                 fontSize:      T.bodySm,
                 fontWeight:    700,
                 letterSpacing: "0.02em",
@@ -375,10 +375,10 @@ export function CorrelationInsightCard() {
                 minHeight:     L.touch,          /* 56px touch target */
               }}
               aria-label={`Adjust schedule for ${insight.medicationName}`}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primary; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
             >
-              <Bell size={14} />
+              <Bell size={14} color="#FFFFFF" />
               Adjust Schedule
             </button>
 
@@ -387,20 +387,20 @@ export function CorrelationInsightCard() {
               onClick={() => setIndex((i) => (i + 1) % visible.length)}
               className="rounded-xl px-4 flex items-center justify-center gap-1 transition-all duration-200"
               style={{
-                background: C.locked,
-                border:     `1px solid ${C.border}`,
-                color:      C.textSub,
+                background: "#4A4D4C",
+                border:     "1px solid rgba(142,175,157,0.4)",
+                color:      "#FFFFFF",
                 fontSize:   T.caption,
                 fontWeight: 700,
                 fontFamily: "inherit",
                 minHeight:  L.touch,
               }}
               aria-label="View next insight"
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.border; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.locked; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
             >
               Next
-              <ChevronRight size={13} />
+              <ChevronRight size={13} color="#FFFFFF" />
             </button>
           </>
         )}

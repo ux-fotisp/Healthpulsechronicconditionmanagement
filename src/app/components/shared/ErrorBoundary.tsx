@@ -161,9 +161,9 @@ export class ErrorBoundary extends Component<Props, State> {
                   onClick={this.handleRetry}
                   className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all"
                   style={{
-                    background: C.primary,
-                    border: `1px solid ${C.primaryBorder}`,
-                    color: C.shell,
+                    background: "#4A4D4C",
+                    border: "1px solid rgba(142,175,157,0.4)",
+                    color: "#FFFFFF",
                     fontSize: T.bodySm,
                     fontWeight: 700,
                     fontFamily: "inherit",
@@ -171,16 +171,16 @@ export class ErrorBoundary extends Component<Props, State> {
                   }}
                   aria-label="Try loading this page again"
                 >
-                  <RefreshCw size={15} />
+                  <RefreshCw size={15} color="#FFFFFF" />
                   Try Again
                 </button>
                 <button
                   onClick={this.handleGoHome}
                   className="rounded-xl px-5 flex items-center justify-center gap-2 transition-all"
                   style={{
-                    background: C.secondaryLight,
-                    border: `1px solid ${C.secondaryBorder}`,
-                    color: C.textSub,
+                    background: "#4A4D4C",
+                    border: "1px solid rgba(142,175,157,0.4)",
+                    color: "#FFFFFF",
                     fontSize: T.bodySm,
                     fontWeight: 700,
                     fontFamily: "inherit",
@@ -188,7 +188,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   }}
                   aria-label="Return to the home dashboard"
                 >
-                  <Home size={15} />
+                  <Home size={15} color="#FFFFFF" />
                   Home
                 </button>
               </div>

@@ -157,8 +157,8 @@ function MedicationActiveState({
           onClick={onLog}
           className="flex-1 rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
           style={{
-            background:    C.primary,
-            color:         C.text,
+            background:    "#4A4D4C",
+            color:         "#FFFFFF",
             fontSize:      T.bodySm,
             fontWeight:    700,
             letterSpacing: "0.02em",
@@ -167,29 +167,29 @@ function MedicationActiveState({
             minHeight:     L.touch,
           }}
           aria-label="Log medication intake"
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primary; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
         >
-          <Pill size={14} />
+          <Pill size={14} color="#FFFFFF" />
           Log Dose
         </button>
         <button
           onClick={onSnooze}
           className="rounded-xl px-4 flex items-center justify-center gap-2 transition-all duration-200"
           style={{
-            background: C.locked,
-            color:      C.textSub,
+            background: "#4A4D4C",
+            color:      "#FFFFFF",
             fontSize:   T.bodySm,
             fontWeight: 700,
-            border:     `1px solid ${C.border}`,
+            border:     "1px solid rgba(142,175,157,0.4)",
             fontFamily: "inherit",
             minHeight:  L.touch,
           }}
           aria-label="Set a snooze reminder"
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.border; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.locked; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
         >
-          <AlarmClock size={14} />
+          <AlarmClock size={14} color="#FFFFFF" />
           Snooze
         </button>
       </div>
@@ -240,19 +240,19 @@ function AppointmentActiveState({
         onClick={onView}
         className="w-full rounded-xl flex items-center justify-center gap-2 transition-all duration-200"
         style={{
-          background: "transparent",
-          color:      C.text,
-          border:     `1px solid ${C.primary}`,
+          background: "#4A4D4C",
+          color:      "#FFFFFF",
+          border:     "1px solid rgba(142,175,157,0.4)",
           fontSize:   T.bodySm,
           fontWeight: 700,
           fontFamily: "inherit",
           minHeight:  L.touch,
         }}
         aria-label="View appointment details"
-        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primary; (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
       >
-        <Calendar size={15} />
+        <Calendar size={15} color="#FFFFFF" />
         View Details
       </button>
     </div>

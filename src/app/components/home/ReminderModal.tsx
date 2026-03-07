@@ -144,19 +144,19 @@ export function ReminderModal({ medication, onClose, onLogDose, onSnooze }: Remi
             onClick={handleLog}
             className="mx-5 mb-3 w-[calc(100%-2.5rem)] rounded-2xl flex items-center justify-center gap-2 transition-all"
             style={{
-              background: C.primary,
+              background: "#4A4D4C",
               border:     "1px solid rgba(142,175,157,0.4)",
-              color:      C.text,
+              color:      "#FFFFFF",
               fontSize:   T.body,
               fontWeight: 700,
               fontFamily: "inherit",
               minHeight:  L.touch,         /* 56px WCAG touch target */
             }}
             aria-label={`Log dose of ${medication.name} as taken`}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primaryDark; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.primary; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#3A3D3C"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4A4D4C"; }}
           >
-            <Pill size={18} />
+            <Pill size={18} color="#FFFFFF" />
             Log Dose — Taken Now
           </button>
         )}
