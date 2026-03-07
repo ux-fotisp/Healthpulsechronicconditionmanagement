@@ -14,6 +14,9 @@ import { EmotionalCheckIn } from "../components/checkins/EmotionalCheckIn";
 import { RoutineReminder } from "../components/smart-dose/RoutineReminder";
 import { MissedDoseRecovery } from "../components/smart-dose/MissedDoseRecovery";
 import { CheckInSparkline } from "../components/home/CheckInSparkline";
+import { CarePlanScoreCard } from "../components/home/CarePlanScoreCard";
+import { GoalsSummaryCard } from "../components/home/GoalsSummaryCard";
+import { DashboardMonitor } from "../components/home/DashboardMonitor";
 import { C } from "../design/tokens";
 import { DashboardProvider, useDashboardContext } from "../hooks/DashboardContext";
 import { DashboardSkeleton } from "../components/shared/LoadingSkeleton";
@@ -109,6 +112,12 @@ function HomeContent() {
           <ActiveStateCard />
         </section>
 
+        {/* Care Dashboard Monitor — Medications, Vitals & Examinations submenu */}
+        <section aria-labelledby="monitor-heading">
+          <p id="monitor-heading" className="sr-only">Care dashboard monitor: medications, vitals, and upcoming examinations</p>
+          <DashboardMonitor />
+        </section>
+
         <section aria-labelledby="meds-due-heading">
           <p id="meds-due-heading" className="sr-only">Medications due today with intake guidance</p>
           <MedicationsDueCard />
@@ -124,6 +133,18 @@ function HomeContent() {
         <section aria-labelledby="adherence-heading">
           <p id="adherence-heading" className="sr-only">Medication adherence streaks and history</p>
           <AdherenceStreakCard />
+        </section>
+
+        {/* Sprint 7: Care Plan Score — composite health score */}
+        <section aria-labelledby="care-score-heading" className="px-4">
+          <p id="care-score-heading" className="sr-only">Care plan composite health score</p>
+          <CarePlanScoreCard />
+        </section>
+
+        {/* Sprint 8: Goals & Milestones summary */}
+        <section aria-labelledby="goals-heading" className="px-4">
+          <p id="goals-heading" className="sr-only">Care plan goals and milestones progress</p>
+          <GoalsSummaryCard />
         </section>
 
         <section aria-labelledby="latest-vital-heading">

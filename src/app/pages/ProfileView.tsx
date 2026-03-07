@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router";
-import { ChevronLeft, ChevronRight, Pencil, User, Shield, Phone, Mail, Globe, Activity, ClipboardList } from "lucide-react";
-import { usePatient } from "../hooks/useHealthData";
+import { ChevronLeft, ChevronRight, Pencil, User, Shield, Phone, Mail, Globe, Activity, ClipboardList, ShieldCheck, Bell } from "lucide-react";
+import { usePatient, useCarePlanPrefs, useUpdateCarePlanPrefs } from "../hooks/useHealthData";
 import { getPatientAge, type Patient } from "../data/helpers";
 import { PageSkeleton } from "../components/shared/LoadingSkeleton";
+import { toast } from "sonner";
 
 /**
  * ProfileView — Patient Identity Record
@@ -83,10 +84,40 @@ function InfoRow({
 export function ProfileView() {
   const navigate = useNavigate();
   const { data: patient, loading } = usePatient();
+  const { data: prefs, loading: prefsLoading, refetch: refetchPrefs } = useCarePlanPrefs();
+  const { update: updatePrefs, loading: savingPrefs } = useUpdateCarePlanPrefs();
 
   if (loading || !patient) return <PageSkeleton title="Profile" cardCount={3} dark={false} />;
 
   const age = getPatientAge(patient as Patient);
+
+  const handleToggleApproval = async () => {
+    try {
+      await updatePrefs({ requireDoctorApproval: !prefs?.requireDoctorApproval });
+      refetchPrefs();
+      toast.success(`Doctor approval ${prefs?.requireDoctorApproval ? "disabled" : "enabled"}`);
+    } catch (e: any) {
+      toast.error(`Failed to update: ${e.message}`);
+    }
+  };
+
+  const handleThresholdChange = async (val: number) => {
+    try {
+      await updatePrefs({ ageThreshold: val });
+      refetchPrefs();
+    } catch (e: any) {
+      toast.error(`Failed to update: ${e.message}`);
+    }
+  };
+
+  const handleNotifChange = async (pref: "in_app" | "email" | "both") => {
+    try {
+      await updatePrefs({ notificationPreference: pref });
+      refetchPrefs();
+    } catch (e: any) {
+      toast.error(`Failed to update: ${e.message}`);
+    }
+  };
 
   return (
     <div style={{ background: "#FBFBFB", minHeight: "100vh" }}>
@@ -348,6 +379,168 @@ export function ProfileView() {
           </div>
           <ChevronRight size={18} color="#64748B" />
         </button>
+
+        {/* ── Care Plan Preferences (Sprint 7) ──────────────────────── */}
+        <div style={cardStyle}>
+          <div
+            className="px-5 py-3 flex items-center gap-2"
+            style={{
+              borderBottom: "1px solid #CBD5E1",
+              background: "rgba(196,168,122,0.06)",
+            }}
+          >
+            <ShieldCheck size={14} color="#7A6230" />
+            <p style={{ ...labelStyle, color: "#7A6230" }}>CARE PLAN PREFERENCES</p>
+          </div>
+
+          {/* Doctor approval toggle */}
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid #CBD5E1" }}>
+            <div className="flex-1 min-w-0">
+              <p style={{ color: "#1E293B", fontSize: 16, fontWeight: 600, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif" }}>
+                Require doctor approval
+              </p>
+              <p style={{ color: "#475569", fontSize: 14, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif", marginTop: 2 }}>
+                Medication changes need your doctor's OK
+              </p>
+            </div>
+            <button
+              onClick={handleToggleApproval}
+              disabled={savingPrefs || prefsLoading}
+              className="rounded-full transition-all flex-shrink-0"
+              style={{
+                width: 52,
+                height: 32,
+                background: prefs?.requireDoctorApproval ? "#8EAF9D" : "#CBD5E1",
+                border: "none",
+                cursor: "pointer",
+                position: "relative",
+                minHeight: 32,
+              }}
+              role="switch"
+              aria-checked={!!prefs?.requireDoctorApproval}
+              aria-label="Toggle doctor approval requirement"
+            >
+              <div
+                className="rounded-full"
+                style={{
+                  width: 26,
+                  height: 26,
+                  background: "#FFFFFF",
+                  position: "absolute",
+                  top: 3,
+                  left: prefs?.requireDoctorApproval ? 23 : 3,
+                  transition: "left 0.2s ease",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+                }}
+              />
+            </button>
+          </div>
+
+          {/* Age threshold */}
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid #CBD5E1" }}>
+            <div>
+              <p style={{ color: "#1E293B", fontSize: 16, fontWeight: 600, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif" }}>
+                Age threshold
+              </p>
+              <p style={{ color: "#475569", fontSize: 14, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif", marginTop: 2 }}>
+                Auto-enable approval above this age
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => handleThresholdChange(Math.max(18, (prefs?.ageThreshold ?? 52) - 1))}
+                className="rounded-lg flex items-center justify-center"
+                style={{
+                  width: 36, height: 36,
+                  background: "rgba(142,175,157,0.12)",
+                  border: "1px solid rgba(142,175,157,0.3)",
+                  color: "#1E293B",
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+                aria-label="Decrease age threshold"
+              >
+                &minus;
+              </button>
+              <span style={{
+                color: "#1E293B",
+                fontSize: 20,
+                fontWeight: 800,
+                fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                minWidth: 32,
+                textAlign: "center",
+              }}>
+                {prefs?.ageThreshold ?? 52}
+              </span>
+              <button
+                onClick={() => handleThresholdChange(Math.min(100, (prefs?.ageThreshold ?? 52) + 1))}
+                className="rounded-lg flex items-center justify-center"
+                style={{
+                  width: 36, height: 36,
+                  background: "rgba(142,175,157,0.12)",
+                  border: "1px solid rgba(142,175,157,0.3)",
+                  color: "#1E293B",
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+                aria-label="Increase age threshold"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {/* Notification preference */}
+          <div className="px-5 py-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Bell size={14} color="#64748B" />
+              <p style={{ color: "#475569", fontSize: 14, fontWeight: 600, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif" }}>
+                Notification method
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {([
+                { value: "in_app" as const, label: "In-App" },
+                { value: "email" as const, label: "Email" },
+                { value: "both" as const, label: "Both" },
+              ]).map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => handleNotifChange(opt.value)}
+                  className="flex-1 rounded-lg py-2.5 transition-all"
+                  style={{
+                    background: prefs?.notificationPreference === opt.value ? "rgba(142,175,157,0.15)" : "#FFFFFF",
+                    border: `1px solid ${prefs?.notificationPreference === opt.value ? "#8EAF9D" : "#CBD5E1"}`,
+                    color: prefs?.notificationPreference === opt.value ? "#3D6B4F" : "#475569",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+                    cursor: "pointer",
+                    minHeight: 44,
+                  }}
+                  aria-pressed={prefs?.notificationPreference === opt.value}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Age context */}
+          <div className="px-5 pb-4">
+            <div className="rounded-xl px-4 py-3" style={{ background: "rgba(142,175,157,0.06)", border: "1px solid rgba(142,175,157,0.15)" }}>
+              <p style={{ color: "#475569", fontSize: 13, fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif", lineHeight: 1.5 }}>
+                Your age: <strong style={{ color: "#1E293B" }}>{age}</strong> · 
+                Threshold: <strong style={{ color: "#1E293B" }}>{prefs?.ageThreshold ?? 52}</strong> · 
+                Approval: <strong style={{ color: age >= (prefs?.ageThreshold ?? 52) ? "#92400E" : "#3D6B4F" }}>
+                  {prefs?.requireDoctorApproval ? "Required" : "Not required"}
+                </strong>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

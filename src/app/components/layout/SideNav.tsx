@@ -4,13 +4,14 @@
  * Touch targets: 48px min-height per FL spec (tablet/desktop).
  */
 
-import { Home, ClipboardList, Lock, CalendarDays, User, Activity } from "lucide-react";
+import { Home, ClipboardList, Lock, CalendarDays, User, Activity, Target } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
 import { FL_C } from "../../design/fluidSystem";
 
 const NAV_ITEMS = [
   { label: "Home",        icon: Home,          path: "/"            },
   { label: "Care Plan",   icon: ClipboardList, path: "/medications" },
+  { label: "Goals",       icon: Target,        path: "/goals"       },
   { label: "Vitals",      icon: Activity,      path: "/observations"},
   { label: "Lab Vault",   icon: Lock,          path: "/labs"        },
   { label: "Schedule",    icon: CalendarDays,  path: "/appointments"},

@@ -19,6 +19,8 @@ import { ReadingContext } from "../components/shared/ReadingContext";
 import { Sparkline } from "../components/shared/Sparkline";
 import { PageSkeleton } from "../components/shared/LoadingSkeleton";
 import { LogVitalsModal } from "../components/shared/LogVitalsModal";
+import { BloodPressureMonitor } from "../components/labs/BloodPressureMonitor";
+import { SugarLevelTracker } from "../components/labs/SugarLevelTracker";
 import { C, T, L } from "../design/tokens";
 
 const OBS_ICONS: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
@@ -179,6 +181,8 @@ export function ObservationsList() {
   const { data: rawTrends, loading: loadingTrends } = useObservationTrends();
   const { logObservation, loading: loggingObs } = useLogObservation();
   const [showLogModal, setShowLogModal] = useState(false);
+  const [showBP, setShowBP] = useState(false);
+  const [showSugar, setShowSugar] = useState(false);
 
   if (loadingObs || loadingTrends) return <PageSkeleton title="Health Labs" cardCount={4} />;
 
@@ -246,6 +250,53 @@ export function ObservationsList() {
         </button>
       </div>
 
+      {/* ── Vitals Trackers ─────────────────────────────────────── */}
+      <div className="flex gap-3 mx-4 mt-4">
+        <button
+          onClick={() => setShowBP(true)}
+          className="flex-1 rounded-2xl overflow-hidden flex flex-col items-center gap-2 py-4 px-3 transition-all"
+          style={{ background: C.cardBg, border: `1px solid ${C.cardBorder}`, minHeight: L.touch }}
+          aria-label="Open Blood Pressure Monitor"
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.rose; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.cardBorder; }}
+        >
+          <div
+            className="flex items-center justify-center rounded-xl"
+            style={{ width: 48, height: 48, background: C.roseLight, border: `1px solid ${C.roseBorder}` }}
+          >
+            <Heart size={22} color={C.rose} />
+          </div>
+          <span style={{ color: C.cardText, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }}>
+            Blood Pressure
+          </span>
+          <span style={{ color: C.cardTextSub, fontSize: T.nano, fontFamily: "inherit", textAlign: "center" }}>
+            Monitor & Log BP
+          </span>
+        </button>
+
+        <button
+          onClick={() => setShowSugar(true)}
+          className="flex-1 rounded-2xl overflow-hidden flex flex-col items-center gap-2 py-4 px-3 transition-all"
+          style={{ background: C.cardBg, border: `1px solid ${C.cardBorder}`, minHeight: L.touch }}
+          aria-label="Open Sugar Level Tracker"
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.alert; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.cardBorder; }}
+        >
+          <div
+            className="flex items-center justify-center rounded-xl"
+            style={{ width: 48, height: 48, background: C.alertLight, border: `1px solid ${C.alertBorder}` }}
+          >
+            <Droplets size={22} color={C.alert} />
+          </div>
+          <span style={{ color: C.cardText, fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit" }}>
+            Sugar Levels
+          </span>
+          <span style={{ color: C.cardTextSub, fontSize: T.nano, fontFamily: "inherit", textAlign: "center" }}>
+            Diabetes Management
+          </span>
+        </button>
+      </div>
+
       <div className="flex flex-col gap-4 p-4" aria-live="polite">
         {/* Attention needed */}
         {warnings.length > 0 && (
@@ -289,6 +340,8 @@ export function ObservationsList() {
         }}
         logging={loggingObs}
       />
+      {showBP && <BloodPressureMonitor onClose={() => setShowBP(false)} />}
+      {showSugar && <SugarLevelTracker onClose={() => setShowSugar(false)} />}
     </div>
   );
 }

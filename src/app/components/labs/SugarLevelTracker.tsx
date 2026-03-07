@@ -23,7 +23,7 @@ import { useState, useMemo } from "react";
 import {
   X, Droplets, Plus, Utensils, Syringe, Footprints, Tag, TrendingUp,
   Clock, ChevronDown, ChevronUp, Smile, Meh, Frown, Moon, Sun, Sunset,
-  Coffee, Heart, Weight, FileText, Zap,
+  Coffee, Heart, Weight, FileText, Zap, Sparkles, GraduationCap, Activity
 } from "lucide-react";
 import { C, T, L } from "../../design/tokens";
 import { toast } from "sonner";
@@ -213,6 +213,35 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
   const totalCarbs = useMemo(() => todayEntries.reduce((s, e) => s + (e.carbs || 0), 0), [todayEntries]);
   const estimatedHbA1c = useMemo(() => avgGlucose === 0 ? "—" : ((avgGlucose + 46.7) / 28.7).toFixed(1) + "%", [avgGlucose]);
 
+  const illnessStage = useMemo(() => {
+    if (entries.length < 5) return "learning";
+    if (timeInRange >= 80) return "stable";
+    if (timeInRange >= 60) return "stabilizing";
+    return "learning";
+  }, [entries.length, timeInRange]);
+
+  const adaptiveInsight = useMemo(() => {
+    if (illnessStage === "stable") {
+      return { 
+        title: "Maintenance Stage", 
+        desc: "Highly predictable trend. Your current regimen is working well.", 
+        color: C.successDark, bg: C.successLight, icon: <Smile size={16} color={C.successDark} /> 
+      };
+    } else if (illnessStage === "stabilizing") {
+      return { 
+        title: "Stabilizing Stage", 
+        desc: "Getting closer to target range. We noticed exercise helps your post-meal spikes.", 
+        color: C.alertText, bg: C.alertLight, icon: <Activity size={16} color={C.alertText} /> 
+      };
+    } else {
+      return { 
+        title: "Learning Phase", 
+        desc: "We are still finding your patterns. Logging meal tags will help us personalize your insights.", 
+        color: "#1E4A8A", bg: "rgba(123,154,204,0.12)", icon: <GraduationCap size={16} color="#1E4A8A" /> 
+      };
+    }
+  }, [illnessStage]);
+
   const inputStyle = { minHeight: L.touch, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: T.body, fontWeight: 600 as const, fontFamily: "inherit", outline: "none", borderRadius: L.rMd, padding: "0 16px", width: "100%" };
   const mealTagLabel = (tag: MealTag) => MEAL_TAGS.find((t) => t.value === tag)?.label || tag;
 
@@ -278,6 +307,19 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
         {/* Trends Tab */}
         {activeSection === "trends" && (
           <div className="px-5 mt-4 pb-8">
+            <div className="mb-4 rounded-2xl p-4 flex gap-3 items-start" style={{ background: adaptiveInsight.bg, border: `1px solid ${adaptiveInsight.color}30` }}>
+              <div className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 36, height: 36, background: C.card, border: `1px solid ${adaptiveInsight.color}20` }}>
+                {adaptiveInsight.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Sparkles size={12} color={adaptiveInsight.color} />
+                  <p style={{ color: adaptiveInsight.color, fontSize: T.nano, fontWeight: 800, letterSpacing: "0.08em", fontFamily: "inherit" }}>{adaptiveInsight.title.toUpperCase()}</p>
+                </div>
+                <p style={{ color: C.textSub, fontSize: T.nano, fontFamily: "inherit", lineHeight: 1.4 }}>{adaptiveInsight.desc}</p>
+              </div>
+            </div>
+
             {entries.length > 0 && <div className="rounded-2xl py-5 mb-4" style={{ background: C.card, border: `1px solid ${C.border}` }}><GlucoseGauge value={entries[0].glucose} mealTag={entries[0].mealTag} /></div>}
             <div className="rounded-2xl overflow-hidden mb-4" style={{ background: C.card, border: `1px solid ${C.border}` }}>
               <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: `1px solid ${C.borderLight}` }}>
@@ -310,7 +352,16 @@ export function SugarLevelTracker({ onClose }: SugarLevelTrackerProps) {
           <>
             {!showInput && (
               <div className="mx-5 mt-4">
-                <button onClick={() => setShowInput(true)} className="w-full rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: C.primary, border: `1px solid ${C.primaryBorder}`, color: "#111820", fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }} aria-label="Log new glucose reading"><Plus size={16} />Log Blood Sugar</button>
+                <button onClick={() => setShowInput(true)} className="w-full rounded-xl flex items-center justify-center gap-2 transition-all" style={{ minHeight: L.touch, background: C.primary, border: `1px solid ${C.primaryBorder}`, color: "#111820", fontSize: T.bodySm, fontWeight: 700, fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }} aria-label="Log new glucose reading">
+                  <Plus size={16} />
+                  {illnessStage === "stable" ? "Quick Log Entry" : "Log Detailed Reading"}
+                </button>
+                {illnessStage !== "stable" && (
+                  <p className="text-center mt-3 flex items-center justify-center gap-1.5" style={{ color: C.textSub, fontSize: 10, fontFamily: "inherit" }}>
+                    <GraduationCap size={12} color={C.textMuted} />
+                    Logging meals + activity helps us predict your trends.
+                  </p>
+                )}
               </div>
             )}
 

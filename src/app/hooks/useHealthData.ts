@@ -453,7 +453,7 @@ export function useSaveEmotionalCheckIn() {
   return { save, loading };
 }
 
-/** Save missed dose recovery action */
+/** Save dose recovery action */
 export function useSaveDoseRecovery() {
   const [loading, setLoading] = useState(false);
 
@@ -471,4 +471,203 @@ export function useSaveDoseRecovery() {
   }, []);
 
   return { save, loading };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 7 — CARE PLAN HOOKS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** All medication change requests */
+export function useMedChangeRequests() {
+  return useSeededQuery(() => api.getMedChangeRequests());
+}
+
+/** Create a medication change request */
+export function useCreateMedChangeRequest() {
+  const [loading, setLoading] = useState(false);
+
+  const create = useCallback(async (data: Omit<api.MedChangeRequestDTO, "id" | "patientId" | "status" | "requiresApproval" | "createdAt" | "reviewedAt" | "reviewedBy" | "reviewNote">) => {
+    setLoading(true);
+    try {
+      const result = await api.createMedChangeRequest(data);
+      return result;
+    } catch (e: any) {
+      console.error("[useCreateMedChangeRequest]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { create, loading };
+}
+
+/** Update (approve/deny) a medication change request */
+export function useUpdateMedChangeRequest() {
+  const [loading, setLoading] = useState(false);
+
+  const update = useCallback(async (reqId: string, data: Partial<api.MedChangeRequestDTO>) => {
+    setLoading(true);
+    try {
+      const result = await api.updateMedChangeRequest(reqId, data);
+      return result;
+    } catch (e: any) {
+      console.error("[useUpdateMedChangeRequest]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { update, loading };
+}
+
+/** Care plan preferences */
+export function useCarePlanPrefs() {
+  return useSeededQuery(() => api.getCarePlanPrefs());
+}
+
+/** Update care plan preferences */
+export function useUpdateCarePlanPrefs() {
+  const [loading, setLoading] = useState(false);
+
+  const update = useCallback(async (data: Partial<api.CarePlanPrefsDTO>) => {
+    setLoading(true);
+    try {
+      const result = await api.updateCarePlanPrefs(data);
+      return result;
+    } catch (e: any) {
+      console.error("[useUpdateCarePlanPrefs]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { update, loading };
+}
+
+/** Care plan score (composite) */
+export function useCarePlanScore() {
+  return useSeededQuery(() => api.getCarePlanScore());
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 8 — GOALS & MILESTONES HOOKS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** All care plan goals (with milestones attached) */
+export function useGoals() {
+  return useSeededQuery(() => api.getGoals());
+}
+
+/** Single goal */
+export function useGoal(goalId: string) {
+  const fetcher = useCallback(() => api.getGoal(goalId), [goalId]);
+  return useSeededQuery(fetcher);
+}
+
+/** Create a new goal */
+export function useCreateGoal() {
+  const [loading, setLoading] = useState(false);
+
+  const create = useCallback(async (data: {
+    title: string;
+    description: string;
+    category: api.GoalDTO["category"];
+    targetDate?: string;
+    milestones?: { title: string; dueDate?: string }[];
+  }) => {
+    setLoading(true);
+    try {
+      const result = await api.createGoal(data);
+      return result;
+    } catch (e: any) {
+      console.error("[useCreateGoal]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { create, loading };
+}
+
+/** Update a goal */
+export function useUpdateGoal() {
+  const [loading, setLoading] = useState(false);
+
+  const update = useCallback(async (goalId: string, data: Partial<api.GoalDTO>) => {
+    setLoading(true);
+    try {
+      const result = await api.updateGoal(goalId, data);
+      return result;
+    } catch (e: any) {
+      console.error("[useUpdateGoal]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { update, loading };
+}
+
+/** Delete a goal */
+export function useDeleteGoal() {
+  const [loading, setLoading] = useState(false);
+
+  const remove = useCallback(async (goalId: string) => {
+    setLoading(true);
+    try {
+      await api.deleteGoal(goalId);
+    } catch (e: any) {
+      console.error("[useDeleteGoal]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { remove, loading };
+}
+
+/** Toggle a milestone */
+export function useToggleMilestone() {
+  const [loading, setLoading] = useState(false);
+
+  const toggle = useCallback(async (goalId: string, msId: string) => {
+    setLoading(true);
+    try {
+      const result = await api.toggleMilestone(goalId, msId);
+      return result;
+    } catch (e: any) {
+      console.error("[useToggleMilestone]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { toggle, loading };
+}
+
+/** Add a milestone to a goal */
+export function useCreateMilestone() {
+  const [loading, setLoading] = useState(false);
+
+  const create = useCallback(async (goalId: string, data: { title: string; dueDate?: string }) => {
+    setLoading(true);
+    try {
+      const result = await api.createMilestone(goalId, data);
+      return result;
+    } catch (e: any) {
+      console.error("[useCreateMilestone]", e.message);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { create, loading };
 }

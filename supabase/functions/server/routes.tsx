@@ -700,6 +700,298 @@ routes.post(`${PREFIX}/dose-recovery/:patientId`, async (c) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+//  MEDICATION CHANGE REQUESTS (Sprint 7 — Care Plan Self-Management)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /med-change-requests/:patientId — List all change requests */
+routes.get(`${PREFIX}/med-change-requests/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const data = await kv.getByPrefix(`med_change_req:${pid}:`);
+    return c.json(data);
+  } catch (e: any) {
+    return errJson(c, `Error listing medication change requests: ${e.message}`);
+  }
+});
+
+/** POST /med-change-requests/:patientId — Create a medication change request */
+routes.post(`${PREFIX}/med-change-requests/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const id = body.id || `MCR${Date.now()}`;
+
+    // Determine if doctor approval is needed
+    const patient = await kv.get(`patient:${pid}`);
+    const prefs = await kv.get(`care_plan_prefs:${pid}`);
+    const age = patient?.birthDate
+      ? Math.floor((Date.now() - new Date(patient.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+      : 0;
+
+    const ageThreshold = prefs?.ageThreshold ?? 52;
+    const requireApproval = prefs?.requireDoctorApproval ?? (age >= ageThreshold);
+    const status = requireApproval ? "pending" : "auto_approved";
+
+    const entry = {
+      ...body,
+      id,
+      patientId: pid,
+      status,
+      requiresApproval: requireApproval,
+      createdAt: new Date().toISOString(),
+      reviewedAt: status === "auto_approved" ? new Date().toISOString() : null,
+      reviewedBy: status === "auto_approved" ? "system" : null,
+      reviewNote: status === "auto_approved" ? "Auto-approved: patient age below threshold" : null,
+    };
+    await kv.set(`med_change_req:${pid}:${id}`, entry);
+
+    // If auto-approved, apply the change immediately
+    if (status === "auto_approved") {
+      await applyMedChange(pid, entry);
+    }
+
+    return c.json(entry, 201);
+  } catch (e: any) {
+    return errJson(c, `Error creating medication change request: ${e.message}`);
+  }
+});
+
+/** PUT /med-change-requests/:patientId/:id — Update (approve/deny) a change request */
+routes.put(`${PREFIX}/med-change-requests/:patientId/:id`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const id = c.req.param("id");
+    const body = await c.req.json();
+    const existing = await kv.get(`med_change_req:${pid}:${id}`);
+    if (!existing) return errJson(c, `Change request ${id} not found`, 404);
+
+    const updated = {
+      ...existing,
+      ...body,
+      id,
+      reviewedAt: new Date().toISOString(),
+    };
+    await kv.set(`med_change_req:${pid}:${id}`, updated);
+
+    // If approved, apply the medication change
+    if (updated.status === "approved") {
+      await applyMedChange(pid, updated);
+    }
+
+    return c.json(updated);
+  } catch (e: any) {
+    return errJson(c, `Error updating medication change request: ${e.message}`);
+  }
+});
+
+/** Helper: Apply a medication change to the actual medication record */
+async function applyMedChange(pid: string, request: any) {
+  try {
+    if (request.changeType === "add") {
+      const medId = request.newMedication?.id || `M${Date.now()}`;
+      const med = {
+        ...request.newMedication,
+        id: medId,
+        status: "active",
+      };
+      await kv.set(`medication:${pid}:${medId}`, med);
+    } else if (request.changeType === "edit_dose") {
+      const existing = await kv.get(`medication:${pid}:${request.medicationId}`);
+      if (existing) {
+        const updated = { ...existing, dosage: request.newDosage };
+        if (request.newFrequency) updated.frequency = request.newFrequency;
+        await kv.set(`medication:${pid}:${request.medicationId}`, updated);
+      }
+    } else if (request.changeType === "discontinue") {
+      const existing = await kv.get(`medication:${pid}:${request.medicationId}`);
+      if (existing) {
+        await kv.set(`medication:${pid}:${request.medicationId}`, { ...existing, status: "inactive" });
+      }
+    }
+  } catch (e: any) {
+    console.log(`[applyMedChange] Error applying change: ${e.message}`);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CARE PLAN PREFERENCES (Sprint 7 — Profile Settings)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /care-plan-prefs/:patientId */
+routes.get(`${PREFIX}/care-plan-prefs/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const data = await kv.get(`care_plan_prefs:${pid}`);
+    // Return defaults if none saved
+    if (!data) {
+      const patient = await kv.get(`patient:${pid}`);
+      const age = patient?.birthDate
+        ? Math.floor((Date.now() - new Date(patient.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+        : 0;
+      return c.json({
+        patientId: pid,
+        requireDoctorApproval: age >= 52,
+        ageThreshold: 52,
+        notificationPreference: "in_app",
+      });
+    }
+    return c.json(data);
+  } catch (e: any) {
+    return errJson(c, `Error fetching care plan preferences: ${e.message}`);
+  }
+});
+
+/** PUT /care-plan-prefs/:patientId */
+routes.put(`${PREFIX}/care-plan-prefs/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const existing = (await kv.get(`care_plan_prefs:${pid}`)) || {};
+    const updated = { ...existing, ...body, patientId: pid, updatedAt: new Date().toISOString() };
+    await kv.set(`care_plan_prefs:${pid}`, updated);
+    return c.json(updated);
+  } catch (e: any) {
+    return errJson(c, `Error updating care plan preferences: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CARE PLAN SCORE (Sprint 7 — Composite Health Score)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /care-plan-score/:patientId — Computed composite score */
+routes.get(`${PREFIX}/care-plan-score/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+
+    const [
+      adherenceStats,
+      streaks,
+      observations,
+      tasks,
+      appointments,
+      checkins,
+      medications,
+    ] = await Promise.all([
+      kv.getByPrefix(`medication_adherence:${pid}:`),
+      kv.getByPrefix(`adherence_streak:${pid}:`),
+      kv.getByPrefix(`observation:${pid}:`),
+      kv.getByPrefix(`task:${pid}:`),
+      kv.getByPrefix(`appointment:${pid}:`),
+      kv.getByPrefix(`checkin:${pid}:`),
+      kv.getByPrefix(`medication:${pid}:`),
+    ]);
+
+    // 1. Medication adherence (35%) — average adherence across all meds
+    let medScore = 100;
+    if (adherenceStats.length > 0) {
+      const totalAdherence = adherenceStats.reduce((sum: number, a: any) => {
+        const pct = a.scheduledCount > 0 ? (a.takenCount / a.scheduledCount) * 100 : 100;
+        return sum + pct;
+      }, 0);
+      medScore = Math.round(totalAdherence / adherenceStats.length);
+    }
+
+    // 2. Vitals logging consistency (20%) — how many days in last 14 have observations
+    let vitalsScore = 100;
+    const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+    const recentObs = observations.filter((o: any) => new Date(o.effectiveDateTime) > fourteenDaysAgo);
+    const uniqueObsDays = new Set(recentObs.map((o: any) => new Date(o.effectiveDateTime).toDateString())).size;
+    vitalsScore = Math.min(100, Math.round((uniqueObsDays / 10) * 100)); // 10 of 14 days = 100%
+
+    // 3. Appointment attendance (15%) — completed vs total
+    let apptScore = 100;
+    if (appointments.length > 0) {
+      const completed = appointments.filter((a: any) => a.status === "completed").length;
+      const cancelled = appointments.filter((a: any) => a.status === "cancelled").length;
+      const relevant = completed + cancelled;
+      apptScore = relevant > 0 ? Math.round((completed / relevant) * 100) : 100;
+    }
+
+    // 4. Task completion rate (15%) — completed vs total
+    let taskScore = 100;
+    if (tasks.length > 0) {
+      const completed = tasks.filter((t: any) => t.status === "completed").length;
+      taskScore = Math.round((completed / tasks.length) * 100);
+    }
+
+    // 5. Daily check-in streak (15%) — checkins in last 7 days
+    let checkinScore = 100;
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const recentCheckins = checkins.filter((ci: any) => new Date(ci.savedAt || ci.date) > sevenDaysAgo);
+    checkinScore = Math.min(100, Math.round((recentCheckins.length / 5) * 100)); // 5 of 7 days = 100%
+
+    // Weighted composite
+    const composite = Math.round(
+      medScore * 0.35 +
+      vitalsScore * 0.20 +
+      apptScore * 0.15 +
+      taskScore * 0.15 +
+      checkinScore * 0.15
+    );
+
+    // Badge level
+    const badge = composite >= 90 ? "gold" : composite >= 75 ? "silver" : composite >= 60 ? "bronze" : "none";
+
+    // Trend — last 4 weeks (simulated for demo)
+    const weeklyTrend = [
+      Math.max(0, Math.min(100, composite - 8 + Math.floor(Math.random() * 5))),
+      Math.max(0, Math.min(100, composite - 5 + Math.floor(Math.random() * 5))),
+      Math.max(0, Math.min(100, composite - 2 + Math.floor(Math.random() * 5))),
+      composite,
+    ];
+
+    return c.json({
+      patientId: pid,
+      composite,
+      badge,
+      breakdown: {
+        medication: { score: medScore, weight: 35, label: "Medication Adherence" },
+        vitals: { score: vitalsScore, weight: 20, label: "Vitals Tracking" },
+        appointments: { score: apptScore, weight: 15, label: "Appointment Attendance" },
+        tasks: { score: taskScore, weight: 15, label: "Task Completion" },
+        checkins: { score: checkinScore, weight: 15, label: "Daily Check-ins" },
+      },
+      weeklyTrend,
+      activeMedications: medications.filter((m: any) => m.status === "active").length,
+      computedAt: new Date().toISOString(),
+    });
+  } catch (e: any) {
+    return errJson(c, `Error computing care plan score: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  MEDICATION CREATE & DELETE (Sprint 7 — Full CRUD)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** POST /medications/:patientId — Create new medication */
+routes.post(`${PREFIX}/medications/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const id = body.id || `M${Date.now()}`;
+    const entry = { ...body, id };
+    await kv.set(`medication:${pid}:${id}`, entry);
+    return c.json(entry, 201);
+  } catch (e: any) {
+    return errJson(c, `Error creating medication: ${e.message}`);
+  }
+});
+
+/** DELETE /medications/:patientId/:id — Delete medication */
+routes.delete(`${PREFIX}/medications/:patientId/:id`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const id = c.req.param("id");
+    await kv.del(`medication:${pid}:${id}`);
+    return c.json({ deleted: true });
+  } catch (e: any) {
+    return errJson(c, `Error deleting medication: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 //  AGGREGATE: Dashboard data (reduces round-trips)
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -745,6 +1037,456 @@ routes.get(`${PREFIX}/dashboard/:patientId`, async (c) => {
     });
   } catch (e: any) {
     return errJson(c, `Error fetching dashboard: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CARE PLAN GOALS & MILESTONES (Sprint 8 — P2)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /goals/:patientId — List all goals */
+routes.get(`${PREFIX}/goals/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const goals = await kv.getByPrefix(`goal:${pid}:`);
+    // Attach milestones to each goal
+    const enriched = await Promise.all(
+      goals.map(async (g: any) => {
+        const milestones = await kv.getByPrefix(`milestone:${pid}:${g.id}:`);
+        const sorted = milestones.sort((a: any, b: any) => a.order - b.order);
+        const completedCount = sorted.filter((m: any) => m.completed).length;
+        const progress = sorted.length > 0 ? Math.round((completedCount / sorted.length) * 100) : 0;
+        return { ...g, milestones: sorted, progress, completedMilestones: completedCount, totalMilestones: sorted.length };
+      })
+    );
+    return c.json(enriched);
+  } catch (e: any) {
+    return errJson(c, `Error listing goals: ${e.message}`);
+  }
+});
+
+/** GET /goals/:patientId/:goalId — Single goal with milestones */
+routes.get(`${PREFIX}/goals/:patientId/:goalId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const goalId = c.req.param("goalId");
+    const goal = await kv.get(`goal:${pid}:${goalId}`);
+    if (!goal) return errJson(c, `Goal ${goalId} not found`, 404);
+    const milestones = await kv.getByPrefix(`milestone:${pid}:${goalId}:`);
+    const sorted = milestones.sort((a: any, b: any) => a.order - b.order);
+    const completedCount = sorted.filter((m: any) => m.completed).length;
+    const progress = sorted.length > 0 ? Math.round((completedCount / sorted.length) * 100) : 0;
+    return c.json({ ...goal, milestones: sorted, progress, completedMilestones: completedCount, totalMilestones: sorted.length });
+  } catch (e: any) {
+    return errJson(c, `Error fetching goal: ${e.message}`);
+  }
+});
+
+/** POST /goals/:patientId — Create new goal */
+routes.post(`${PREFIX}/goals/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const id = body.id || `G${Date.now()}`;
+    const entry = {
+      ...body,
+      id,
+      patientId: pid,
+      status: body.status || "active",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await kv.set(`goal:${pid}:${id}`, entry);
+
+    // Create milestones if provided
+    const milestones = body.milestones || [];
+    for (let i = 0; i < milestones.length; i++) {
+      const ms = milestones[i];
+      const msId = ms.id || `MS${Date.now()}_${i}`;
+      const msEntry = {
+        ...ms,
+        id: msId,
+        goalId: id,
+        patientId: pid,
+        order: ms.order ?? i,
+        completed: false,
+        completedAt: null,
+      };
+      await kv.set(`milestone:${pid}:${id}:${msId}`, msEntry);
+    }
+
+    return c.json(entry, 201);
+  } catch (e: any) {
+    return errJson(c, `Error creating goal: ${e.message}`);
+  }
+});
+
+/** PUT /goals/:patientId/:goalId — Update goal */
+routes.put(`${PREFIX}/goals/:patientId/:goalId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const goalId = c.req.param("goalId");
+    const body = await c.req.json();
+    const existing = await kv.get(`goal:${pid}:${goalId}`);
+    const updated = { ...existing, ...body, id: goalId, patientId: pid, updatedAt: new Date().toISOString() };
+    await kv.set(`goal:${pid}:${goalId}`, updated);
+    return c.json(updated);
+  } catch (e: any) {
+    return errJson(c, `Error updating goal: ${e.message}`);
+  }
+});
+
+/** DELETE /goals/:patientId/:goalId — Delete goal and its milestones */
+routes.delete(`${PREFIX}/goals/:patientId/:goalId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const goalId = c.req.param("goalId");
+    // Delete all milestones first
+    const milestones = await kv.getByPrefix(`milestone:${pid}:${goalId}:`);
+    for (const ms of milestones) {
+      await kv.del(`milestone:${pid}:${goalId}:${(ms as any).id}`);
+    }
+    await kv.del(`goal:${pid}:${goalId}`);
+    return c.json({ deleted: true });
+  } catch (e: any) {
+    return errJson(c, `Error deleting goal: ${e.message}`);
+  }
+});
+
+/** POST /goals/:patientId/:goalId/milestones — Add milestone */
+routes.post(`${PREFIX}/goals/:patientId/:goalId/milestones`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const goalId = c.req.param("goalId");
+    const body = await c.req.json();
+    const id = body.id || `MS${Date.now()}`;
+    // Find highest order
+    const existing = await kv.getByPrefix(`milestone:${pid}:${goalId}:`);
+    const maxOrder = existing.reduce((max: number, m: any) => Math.max(max, m.order ?? 0), -1);
+    const entry = {
+      ...body,
+      id,
+      goalId,
+      patientId: pid,
+      order: body.order ?? maxOrder + 1,
+      completed: false,
+      completedAt: null,
+    };
+    await kv.set(`milestone:${pid}:${goalId}:${id}`, entry);
+    return c.json(entry, 201);
+  } catch (e: any) {
+    return errJson(c, `Error creating milestone: ${e.message}`);
+  }
+});
+
+/** PUT /goals/:patientId/:goalId/milestones/:msId/toggle — Toggle milestone */
+routes.put(`${PREFIX}/goals/:patientId/:goalId/milestones/:msId/toggle`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const goalId = c.req.param("goalId");
+    const msId = c.req.param("msId");
+    const existing = await kv.get(`milestone:${pid}:${goalId}:${msId}`);
+    if (!existing) return errJson(c, `Milestone ${msId} not found`, 404);
+    const toggled = {
+      ...existing,
+      completed: !(existing as any).completed,
+      completedAt: !(existing as any).completed ? new Date().toISOString() : null,
+    };
+    await kv.set(`milestone:${pid}:${goalId}:${msId}`, toggled);
+
+    // Check if all milestones completed → auto-complete goal
+    const allMs = await kv.getByPrefix(`milestone:${pid}:${goalId}:`);
+    const allMsUpdated = allMs.map((m: any) => m.id === msId ? toggled : m);
+    const allCompleted = allMsUpdated.length > 0 && allMsUpdated.every((m: any) => m.completed);
+    if (allCompleted) {
+      const goal = await kv.get(`goal:${pid}:${goalId}`);
+      if (goal) {
+        await kv.set(`goal:${pid}:${goalId}`, { ...goal, status: "completed", updatedAt: new Date().toISOString() });
+      }
+    }
+
+    return c.json(toggled);
+  } catch (e: any) {
+    return errJson(c, `Error toggling milestone: ${e.message}`);
+  }
+});
+
+/** DELETE /goals/:patientId/:goalId/milestones/:msId — Delete milestone */
+routes.delete(`${PREFIX}/goals/:patientId/:goalId/milestones/:msId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const goalId = c.req.param("goalId");
+    const msId = c.req.param("msId");
+    await kv.del(`milestone:${pid}:${goalId}:${msId}`);
+    return c.json({ deleted: true });
+  } catch (e: any) {
+    return errJson(c, `Error deleting milestone: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  NOTIFICATIONS — Persisted Push-Style Alerts (Sprint 9)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /notifications/:patientId — List all notifications */
+routes.get(`${PREFIX}/notifications/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const data = await kv.getByPrefix(`notification:${pid}:`);
+    data.sort((a: any, b: any) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+    return c.json(data);
+  } catch (e: any) {
+    return errJson(c, `Error listing notifications: ${e.message}`);
+  }
+});
+
+/** POST /notifications/:patientId — Create a single notification */
+routes.post(`${PREFIX}/notifications/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const id = body.id || `NTF${Date.now()}`;
+    const entry = {
+      ...body,
+      id,
+      patientId: pid,
+      read: false,
+      dismissed: false,
+      createdAt: body.createdAt || new Date().toISOString(),
+    };
+    await kv.set(`notification:${pid}:${id}`, entry);
+    return c.json(entry, 201);
+  } catch (e: any) {
+    return errJson(c, `Error creating notification: ${e.message}`);
+  }
+});
+
+/** PUT /notifications/:patientId/mark-all-read — Batch mark all as read */
+/** NOTE: Must be registered BEFORE the /:id route to avoid parameter matching */
+routes.put(`${PREFIX}/notifications/:patientId/mark-all-read`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const all = await kv.getByPrefix(`notification:${pid}:`);
+    let count = 0;
+    for (const n of all) {
+      if (!(n as any).read) {
+        await kv.set(`notification:${pid}:${(n as any).id}`, { ...n, read: true });
+        count++;
+      }
+    }
+    return c.json({ marked: count });
+  } catch (e: any) {
+    return errJson(c, `Error marking all notifications read: ${e.message}`);
+  }
+});
+
+/** PUT /notifications/:patientId/:id — Update notification (mark read, dismiss) */
+routes.put(`${PREFIX}/notifications/:patientId/:id`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const id = c.req.param("id");
+    const body = await c.req.json();
+    const existing = await kv.get(`notification:${pid}:${id}`);
+    if (!existing) return errJson(c, `Notification ${id} not found`, 404);
+    const updated = { ...existing, ...body, id, patientId: pid };
+    await kv.set(`notification:${pid}:${id}`, updated);
+    return c.json(updated);
+  } catch (e: any) {
+    return errJson(c, `Error updating notification: ${e.message}`);
+  }
+});
+
+/** DELETE /notifications/:patientId/:id — Dismiss a notification */
+routes.delete(`${PREFIX}/notifications/:patientId/:id`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const id = c.req.param("id");
+    await kv.del(`notification:${pid}:${id}`);
+    return c.json({ deleted: true });
+  } catch (e: any) {
+    return errJson(c, `Error deleting notification: ${e.message}`);
+  }
+});
+
+/**
+ * POST /notifications/:patientId/generate — Server-side scheduled notification generation
+ * Scans medications, observations, and appointments to produce persisted alerts.
+ * Idempotent: skips if a notification with the same sourceKey already exists.
+ */
+routes.post(`${PREFIX}/notifications/:patientId/generate`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const now = new Date();
+
+    // Load prefs to check muted types and per-medication muting
+    const prefs = (await kv.get(`notification_prefs:${pid}`)) as any || {};
+    const mutedTypes: string[] = prefs.mutedTypes || [];
+    const mutedMedicationIds: string[] = prefs.mutedMedicationIds || [];
+
+    // Load existing notifications to deduplicate
+    const existing = await kv.getByPrefix(`notification:${pid}:`);
+    const existingKeys = new Set(existing.map((n: any) => n.sourceKey).filter(Boolean));
+
+    const [medications, medicationLogs, observations, appointments] = await Promise.all([
+      kv.getByPrefix(`medication:${pid}:`),
+      kv.getByPrefix(`medication_log:${pid}:`),
+      kv.getByPrefix(`observation:${pid}:`),
+      kv.getByPrefix(`appointment:${pid}:`),
+    ]);
+
+    const todayStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+    const takenTodayIds = new Set(
+      (medicationLogs as any[])
+        .filter((log: any) => {
+          const d = new Date(log.timestamp);
+          const logDay = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+          return logDay === todayStr && log.status === "taken";
+        })
+        .map((log: any) => log.medicationId)
+    );
+
+    const created: any[] = [];
+
+    // 1. Medication intake alerts
+    if (!mutedTypes.includes("medication")) {
+      for (const med of medications as any[]) {
+        if (med.status !== "active" || takenTodayIds.has(med.id)) continue;
+        // Skip per-medication muted IDs
+        if (mutedMedicationIds.includes(med.id)) continue;
+        const nextDose = med.nextDoseTime ? new Date(med.nextDoseTime) : null;
+        if (!nextDose) continue;
+
+        const isOverdue = nextDose.getTime() < now.getTime();
+        const isDueSoon = !isOverdue && (nextDose.getTime() - now.getTime()) < 60 * 60 * 1000;
+        if (!isOverdue && !isDueSoon) continue;
+
+        const sourceKey = `med:${med.id}:${todayStr}`;
+        if (existingKeys.has(sourceKey)) continue;
+
+        const id = `NTF${Date.now()}_${med.id}`;
+        const entry = {
+          id, patientId: pid, type: "medication",
+          severity: isOverdue ? "overdue" : "due_soon",
+          title: isOverdue ? `${med.name} dose overdue` : `${med.name} due soon`,
+          detail: `${med.dosage} · ${med.frequency}${med.quickInstruction ? ` · ${med.quickInstruction}` : ""}`,
+          time: nextDose.toISOString(), sourceKey, sourceId: med.id,
+          navigateTo: `/medications/${med.id}`,
+          read: false, dismissed: false, createdAt: now.toISOString(),
+        };
+        await kv.set(`notification:${pid}:${id}`, entry);
+        created.push(entry);
+      }
+    }
+
+    // 2. Abnormal vital alerts
+    if (!mutedTypes.includes("vital")) {
+      const sortedObs = (observations as any[]).sort(
+        (a: any, b: any) => new Date(b.effectiveDateTime).getTime() - new Date(a.effectiveDateTime).getTime()
+      );
+      const seenTypes = new Set<string>();
+      for (const obs of sortedObs) {
+        if (seenTypes.has(obs.type)) continue;
+        seenTypes.add(obs.type);
+        if (obs.status !== "warning" && obs.status !== "critical") continue;
+
+        const sourceKey = `vital:${obs.id}`;
+        if (existingKeys.has(sourceKey)) continue;
+
+        const id = `NTF${Date.now()}_${obs.id}`;
+        const entry = {
+          id, patientId: pid, type: "vital",
+          severity: obs.status === "critical" ? "overdue" : "due_soon",
+          title: `${obs.type} reading ${obs.status}`,
+          detail: `${obs.value} ${obs.unit} — requires attention`,
+          time: obs.effectiveDateTime, sourceKey, sourceId: obs.id,
+          navigateTo: "/observations",
+          read: false, dismissed: false, createdAt: now.toISOString(),
+        };
+        await kv.set(`notification:${pid}:${id}`, entry);
+        created.push(entry);
+      }
+    }
+
+    // 3. Upcoming appointment alerts (next 48h)
+    if (!mutedTypes.includes("appointment")) {
+      const horizon = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+      const upcoming = (appointments as any[]).filter(
+        (a: any) => a.status === "scheduled" && new Date(a.start) > now && new Date(a.start) <= horizon
+      );
+      for (const appt of upcoming) {
+        const isToday = new Date(appt.start).toDateString() === now.toDateString();
+        const sourceKey = `appt:${appt.id}:${todayStr}`;
+        if (existingKeys.has(sourceKey)) continue;
+
+        const id = `NTF${Date.now()}_${appt.id}`;
+        const entry = {
+          id, patientId: pid, type: "appointment",
+          severity: isToday ? "due_soon" : "upcoming",
+          title: `${appt.type}${isToday ? " today" : " tomorrow"}`,
+          detail: `${appt.provider} · ${appt.modality}`,
+          time: appt.start, sourceKey, sourceId: appt.id,
+          navigateTo: "/appointments",
+          read: false, dismissed: false, createdAt: now.toISOString(),
+        };
+        await kv.set(`notification:${pid}:${id}`, entry);
+        created.push(entry);
+      }
+    }
+
+    return c.json({ generated: created.length, notifications: created });
+  } catch (e: any) {
+    return errJson(c, `Error generating notifications: ${e.message}`);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  NOTIFICATION PREFERENCES — Muting & Scheduling (Sprint 9)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /notification-prefs/:patientId */
+routes.get(`${PREFIX}/notification-prefs/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const data = await kv.get(`notification_prefs:${pid}`);
+    if (!data) {
+      return c.json({
+        patientId: pid,
+        mutedTypes: [],
+        mutedMedicationIds: [],
+        quietHoursEnabled: false,
+        quietHoursStart: "22:00",
+        quietHoursEnd: "07:00",
+        medRemindersEnabled: true,
+        vitalRemindersEnabled: true,
+        appointmentRemindersEnabled: true,
+        reminderLeadMinutes: 30,
+        updatedAt: null,
+      });
+    }
+    return c.json(data);
+  } catch (e: any) {
+    return errJson(c, `Error fetching notification preferences: ${e.message}`);
+  }
+});
+
+/** PUT /notification-prefs/:patientId */
+routes.put(`${PREFIX}/notification-prefs/:patientId`, async (c) => {
+  try {
+    const pid = c.req.param("patientId");
+    const body = await c.req.json();
+    const existing = (await kv.get(`notification_prefs:${pid}`)) || {};
+    const updated = {
+      ...existing,
+      ...body,
+      patientId: pid,
+      updatedAt: new Date().toISOString(),
+    };
+    await kv.set(`notification_prefs:${pid}`, updated);
+    return c.json(updated);
+  } catch (e: any) {
+    return errJson(c, `Error updating notification preferences: ${e.message}`);
   }
 });
 

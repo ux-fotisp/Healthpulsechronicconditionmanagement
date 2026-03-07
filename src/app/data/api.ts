@@ -164,7 +164,7 @@ export const getAdherence = (pid = PID) =>
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  ADHERENCE STREAKS
-// ══════════��════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
 
 export interface StreakDTO {
   medicationId: string;
@@ -332,7 +332,7 @@ export const togglePrepItem = (apptId: string, itemId: string, pid = PID) =>
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  LAB RESULTS
-// ═══════════════════════════════════════════════════════════════════════════════
+// ════════════════════════���═════════════════════════════════════════════════════
 
 export interface LabHighlightDTO {
   label: string;
@@ -401,6 +401,91 @@ export const getHealthProfile = (pid = PID) =>
   get<HealthProfileDTO | null>(`/health-profile/${pid}`);
 export const saveHealthProfile = (data: Omit<HealthProfileDTO, "patientId" | "savedAt">, pid = PID) =>
   post<HealthProfileDTO>(`/health-profile/${pid}`, data);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  MEDICATION CHANGE REQUESTS (Sprint 7 — Care Plan Self-Management)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface MedChangeRequestDTO {
+  id: string;
+  patientId: string;
+  changeType: "add" | "edit_dose" | "discontinue";
+  medicationId?: string;
+  medicationName: string;
+  currentDosage?: string;
+  newDosage?: string;
+  newFrequency?: string;
+  newMedication?: Partial<MedicationDTO>;
+  reason: string;
+  status: "pending" | "approved" | "denied" | "auto_approved";
+  requiresApproval: boolean;
+  createdAt: string;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  reviewNote: string | null;
+}
+
+export const getMedChangeRequests = (pid = PID) =>
+  get<MedChangeRequestDTO[]>(`/med-change-requests/${pid}`);
+export const createMedChangeRequest = (data: Omit<MedChangeRequestDTO, "id" | "patientId" | "status" | "requiresApproval" | "createdAt" | "reviewedAt" | "reviewedBy" | "reviewNote">, pid = PID) =>
+  post<MedChangeRequestDTO>(`/med-change-requests/${pid}`, data);
+export const updateMedChangeRequest = (reqId: string, data: Partial<MedChangeRequestDTO>, pid = PID) =>
+  put<MedChangeRequestDTO>(`/med-change-requests/${pid}/${reqId}`, data);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CARE PLAN PREFERENCES (Sprint 7 — Profile Settings)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface CarePlanPrefsDTO {
+  patientId: string;
+  requireDoctorApproval: boolean;
+  ageThreshold: number;
+  notificationPreference: "in_app" | "email" | "both";
+  updatedAt?: string;
+}
+
+export const getCarePlanPrefs = (pid = PID) =>
+  get<CarePlanPrefsDTO>(`/care-plan-prefs/${pid}`);
+export const updateCarePlanPrefs = (data: Partial<CarePlanPrefsDTO>, pid = PID) =>
+  put<CarePlanPrefsDTO>(`/care-plan-prefs/${pid}`, data);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CARE PLAN SCORE (Sprint 7 — Composite Health Score)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface ScoreBreakdownItem {
+  score: number;
+  weight: number;
+  label: string;
+}
+
+export interface CarePlanScoreDTO {
+  patientId: string;
+  composite: number;
+  badge: "gold" | "silver" | "bronze" | "none";
+  breakdown: {
+    medication: ScoreBreakdownItem;
+    vitals: ScoreBreakdownItem;
+    appointments: ScoreBreakdownItem;
+    tasks: ScoreBreakdownItem;
+    checkins: ScoreBreakdownItem;
+  };
+  weeklyTrend: number[];
+  activeMedications: number;
+  computedAt: string;
+}
+
+export const getCarePlanScore = (pid = PID) =>
+  get<CarePlanScoreDTO>(`/care-plan-score/${pid}`);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  MEDICATION CREATE & DELETE (Sprint 7 — Full CRUD)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const createMedication = (data: Omit<MedicationDTO, "id">, pid = PID) =>
+  post<MedicationDTO>(`/medications/${pid}`, data);
+export const deleteMedication = (medId: string, pid = PID) =>
+  del<{ deleted: boolean }>(`/medications/${pid}/${medId}`);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  DASHBOARD AGGREGATE
@@ -547,3 +632,112 @@ export interface DoseRecoveryDTO {
 
 export const createDoseRecovery = (data: Omit<DoseRecoveryDTO, "id" | "patientId" | "timestamp">, pid = PID) =>
   post<DoseRecoveryDTO>(`/dose-recovery/${pid}`, data);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CARE PLAN GOALS & MILESTONES (Sprint 8 — P2)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface MilestoneDTO {
+  id: string;
+  goalId: string;
+  patientId: string;
+  title: string;
+  dueDate?: string;
+  order: number;
+  completed: boolean;
+  completedAt: string | null;
+}
+
+export interface GoalDTO {
+  id: string;
+  patientId: string;
+  title: string;
+  description: string;
+  category: "medication" | "vitals" | "lifestyle" | "appointment" | "custom";
+  targetDate?: string;
+  status: "active" | "completed" | "paused";
+  progress: number;
+  completedMilestones: number;
+  totalMilestones: number;
+  milestones: MilestoneDTO[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const getGoals = (pid = PID) =>
+  get<GoalDTO[]>(`/goals/${pid}`);
+export const getGoal = (goalId: string, pid = PID) =>
+  get<GoalDTO>(`/goals/${pid}/${goalId}`);
+export const createGoal = (data: {
+  title: string;
+  description: string;
+  category: GoalDTO["category"];
+  targetDate?: string;
+  milestones?: { title: string; dueDate?: string }[];
+}, pid = PID) =>
+  post<GoalDTO>(`/goals/${pid}`, data);
+export const updateGoal = (goalId: string, data: Partial<GoalDTO>, pid = PID) =>
+  put<GoalDTO>(`/goals/${pid}/${goalId}`, data);
+export const deleteGoal = (goalId: string, pid = PID) =>
+  del<{ deleted: boolean }>(`/goals/${pid}/${goalId}`);
+
+export const createMilestone = (goalId: string, data: { title: string; dueDate?: string }, pid = PID) =>
+  post<MilestoneDTO>(`/goals/${pid}/${goalId}/milestones`, data);
+export const toggleMilestone = (goalId: string, msId: string, pid = PID) =>
+  put<MilestoneDTO>(`/goals/${pid}/${goalId}/milestones/${msId}/toggle`, {});
+export const deleteMilestone = (goalId: string, msId: string, pid = PID) =>
+  del<{ deleted: boolean }>(`/goals/${pid}/${goalId}/milestones/${msId}`);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  NOTIFICATIONS — Persisted Push Alerts (Sprint 9)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface NotificationDTO {
+  id: string;
+  patientId: string;
+  type: "medication" | "vital" | "appointment";
+  severity: "overdue" | "due_soon" | "upcoming" | "info";
+  title: string;
+  detail: string;
+  time: string;
+  sourceKey: string;
+  sourceId: string;
+  navigateTo: string;
+  read: boolean;
+  dismissed: boolean;
+  createdAt: string;
+}
+
+export const getNotifications = (pid = PID) =>
+  get<NotificationDTO[]>(`/notifications/${pid}`);
+export const updateNotification = (notifId: string, data: Partial<NotificationDTO>, pid = PID) =>
+  put<NotificationDTO>(`/notifications/${pid}/${notifId}`, data);
+export const markAllNotificationsRead = (pid = PID) =>
+  put<{ marked: number }>(`/notifications/${pid}/mark-all-read`, {});
+export const deleteNotification = (notifId: string, pid = PID) =>
+  del<{ deleted: boolean }>(`/notifications/${pid}/${notifId}`);
+export const generateNotifications = (pid = PID) =>
+  post<{ generated: number; notifications: NotificationDTO[] }>(`/notifications/${pid}/generate`, {});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  NOTIFICATION PREFERENCES (Sprint 9)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface NotificationPrefsDTO {
+  patientId: string;
+  mutedTypes: string[];
+  mutedMedicationIds: string[];
+  quietHoursEnabled: boolean;
+  quietHoursStart: string;
+  quietHoursEnd: string;
+  medRemindersEnabled: boolean;
+  vitalRemindersEnabled: boolean;
+  appointmentRemindersEnabled: boolean;
+  reminderLeadMinutes: number;
+  updatedAt: string | null;
+}
+
+export const getNotificationPrefs = (pid = PID) =>
+  get<NotificationPrefsDTO>(`/notification-prefs/${pid}`);
+export const updateNotificationPrefs = (data: Partial<NotificationPrefsDTO>, pid = PID) =>
+  put<NotificationPrefsDTO>(`/notification-prefs/${pid}`, data);

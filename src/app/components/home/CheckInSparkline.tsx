@@ -112,14 +112,21 @@ export function CheckInSparkline() {
   const chartData = useMemo(() => {
     if (!checkIns || checkIns.length < 2) return generateDemoData();
 
-    // Sort by date ascending, take last 7
+    // Sort by date ascending, take last 7, deduplicate by date (keep latest)
     const sorted = [...checkIns]
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(-7);
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    return sorted.map((ci) => ({
+    // Deduplicate: if multiple check-ins share a date, keep the last one
+    const byDate = new Map<string, typeof sorted[0]>();
+    for (const ci of sorted) {
+      byDate.set(ci.date, ci);
+    }
+
+    const unique = Array.from(byDate.values()).slice(-7);
+
+    return unique.map((ci, i) => ({
       day: formatDayLabel(ci.date),
-      date: ci.date,
+      date: ci.date || `entry-${i}`,
       energy: ci.energyLevel,
       mood: ci.moodRating,
       sleep: ci.sleepQuality,
@@ -210,7 +217,16 @@ export function CheckInSparkline() {
         <ResponsiveContainer width="100%" height={100}>
           <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
             <XAxis
-              dataKey="day"
+              key="xaxis"
+              dataKey="date"
+              allowDuplicatedCategory={false}
+              tickFormatter={(val: string) => {
+                try {
+                  return new Date(val).toLocaleDateString("en-US", { weekday: "short" });
+                } catch {
+                  return val;
+                }
+              }}
               tick={{
                 fontSize: T.nano,
                 fill: C.textSub,
@@ -220,30 +236,44 @@ export function CheckInSparkline() {
               tickLine={false}
             />
             <YAxis
+              key="yaxis"
               domain={[0, 5]}
               tick={false}
               axisLine={false}
               tickLine={false}
               width={10}
             />
-            <Tooltip content={<SparkTooltip />} />
-            {LINES.map((line) => (
-              <Line
-                key={line.key}
-                type="monotone"
-                dataKey={line.key}
-                name={line.label}
-                stroke={line.color}
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{
-                  r: 5,
-                  fill: line.color,
-                  stroke: C.card,
-                  strokeWidth: 2,
-                }}
-              />
-            ))}
+            <Tooltip key="tooltip" content={<SparkTooltip />} />
+            <Line
+              key="line-energy"
+              type="monotone"
+              dataKey="energy"
+              name="Energy"
+              stroke={C.alert}
+              strokeWidth={2.5}
+              dot={false}
+              activeDot={{ r: 5, fill: C.alert, stroke: C.card, strokeWidth: 2 }}
+            />
+            <Line
+              key="line-mood"
+              type="monotone"
+              dataKey="mood"
+              name="Mood"
+              stroke={C.purple}
+              strokeWidth={2.5}
+              dot={false}
+              activeDot={{ r: 5, fill: C.purple, stroke: C.card, strokeWidth: 2 }}
+            />
+            <Line
+              key="line-sleep"
+              type="monotone"
+              dataKey="sleep"
+              name="Sleep"
+              stroke={C.teal}
+              strokeWidth={2.5}
+              dot={false}
+              activeDot={{ r: 5, fill: C.teal, stroke: C.card, strokeWidth: 2 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>

@@ -9,6 +9,7 @@ import { useNavigate } from "react-router";
 import { useDashboardContext } from "../../hooks/DashboardContext";
 import { getPatientAge } from "../../data/helpers";
 import { C, T, L, BRAND_NAME } from "../../design/tokens";
+import { NotificationMenu } from "./NotificationMenu";
 
 export function PatientHeader() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export function PatientHeader() {
     >
       {/* ── Brand bar ── */}
       <div className="flex items-center mb-4">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-1">
           <div
             className="flex items-center justify-center rounded-xl"
             style={{
@@ -67,6 +68,9 @@ export function PatientHeader() {
             </span>
           </div>
         </div>
+
+        {/* Notification bell */}
+        <NotificationMenu />
       </div>
 
       {/* ── Patient identity card ── */}

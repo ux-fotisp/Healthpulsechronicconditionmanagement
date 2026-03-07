@@ -8,14 +8,18 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
+  Settings,
+  Stethoscope,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useMedications, useMedicationLogs, useLogDose } from "../hooks/useHealthData";
-import { hydrateMedications, hydrateMedLogs, MOCK_NOW, formatTime, type Medication, type MedicationLog } from "../data/helpers";
+import { useMedications, useMedicationLogs, useLogDose, usePatient, useMedChangeRequests } from "../hooks/useHealthData";
+import { hydrateMedications, hydrateMedLogs, MOCK_NOW, formatTime, type Medication, type MedicationLog, getPatientAge, type Patient } from "../data/helpers";
 import { StatusBadge } from "../components/shared/StatusBadge";
 import { PillBadge } from "../components/shared/PillVisualizer";
 import { PageSkeleton } from "../components/shared/LoadingSkeleton";
+import { MedicationEditor } from "../components/medications/MedicationEditor";
+import { ProviderReviewPanel } from "../components/medications/ProviderReviewPanel";
 import { C, T, L } from "../design/tokens";
 
 function isTakenToday(medicationId: string, medLogs: MedicationLog[]): boolean {
@@ -203,15 +207,21 @@ function ActiveMedCard({
 // ── Page ──────────────────────────────────────────────────────────────────────
 export function MedicationsList() {
   const navigate = useNavigate();
-  const { data: rawMeds, loading: loadMeds } = useMedications();
+  const { data: rawMeds, loading: loadMeds, refetch: refetchMeds } = useMedications();
   const { data: rawLogs, loading: loadLogs } = useMedicationLogs();
+  const { data: patient, loading: loadPatient } = usePatient();
+  const { data: changeRequests } = useMedChangeRequests();
+  const [showEditor, setShowEditor] = useState(false);
+  const [showReview, setShowReview] = useState(false);
 
-  if (loadMeds || loadLogs) return <PageSkeleton title="Medications" cardCount={3} />;
+  if (loadMeds || loadLogs || loadPatient) return <PageSkeleton title="Medications" cardCount={3} />;
 
   const medications = rawMeds ? hydrateMedications(rawMeds) : [];
   const medLogs = rawLogs ? hydrateMedLogs(rawLogs) : [];
   const active   = medications.filter((m) => m.status === "active");
   const inactive = medications.filter((m) => m.status === "inactive");
+  const patientAge = patient ? getPatientAge(patient as Patient) : 0;
+  const pendingRequests = (changeRequests || []).filter((r: any) => r.status === "pending");
 
   return (
     <div style={{ background: C.shell, minHeight: "100vh" }}>
@@ -235,13 +245,57 @@ export function MedicationsList() {
           <ChevronLeft size={18} />
         </button>
         <div>
-          {/* H1 — 26px Bold Montserrat */}
           <h1 style={{ color: C.textOnDark, fontSize: T.h1, fontWeight: 700, fontFamily: "inherit", margin: 0 }}>
             Medications
           </h1>
           <p style={{ color: C.textOnDarkMuted, fontSize: T.caption, fontFamily: "inherit" }}>
             Care Plan · Active Regimens
           </p>
+        </div>
+
+        {/* Action buttons */}
+        <div className="ml-auto flex items-center gap-2">
+          {pendingRequests.length > 0 && (
+            <button
+              onClick={() => setShowReview(true)}
+              className="relative flex items-center justify-center rounded-xl transition-all"
+              style={{
+                width: L.touch, height: L.touch,
+                background: "rgba(196,168,122,0.15)",
+                border: "1px solid rgba(196,168,122,0.35)",
+                color: "#C4A87A",
+              }}
+              aria-label={`Review ${pendingRequests.length} pending requests`}
+            >
+              <Stethoscope size={18} />
+              <span
+                className="absolute -top-1 -right-1 flex items-center justify-center rounded-full"
+                style={{
+                  width: 18, height: 18,
+                  background: C.terracotta,
+                  color: "#fff",
+                  fontSize: 9,
+                  fontWeight: 800,
+                  fontFamily: "inherit",
+                }}
+              >
+                {pendingRequests.length}
+              </span>
+            </button>
+          )}
+          <button
+            onClick={() => setShowEditor(true)}
+            className="flex items-center justify-center rounded-xl transition-all"
+            style={{
+              width: L.touch, height: L.touch,
+              background: "rgba(157,187,155,0.15)",
+              border: "1px solid rgba(157,187,155,0.35)",
+              color: C.primary,
+            }}
+            aria-label="Manage medications"
+          >
+            <Settings size={18} />
+          </button>
         </div>
       </div>
 
@@ -302,6 +356,22 @@ export function MedicationsList() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      {showEditor && rawMeds && (
+        <MedicationEditor
+          onClose={() => setShowEditor(false)}
+          medications={rawMeds}
+          patientAge={patientAge}
+          onSuccess={refetchMeds}
+        />
+      )}
+      {showReview && (
+        <ProviderReviewPanel
+          onClose={() => setShowReview(false)}
+          onActionComplete={refetchMeds}
+        />
+      )}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { MediFlowHub } from "./pages/MediFlowHub";
 import { HealthProfileWizard } from "./pages/HealthProfileWizard";
 import { MediFlowVault } from "./pages/MediFlowVault";
 import { DesignSystemPage } from "./pages/DesignSystemPage";
+import { GoalsTracker } from "./pages/GoalsTracker";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
       { path: "tasks",                  Component: TasksList           },
       { path: "appointments",           Component: AppointmentsList    },
       { path: "labs",                   Component: LabVault            },
+      { path: "goals",                  Component: GoalsTracker        },
       { path: "onboarding",             Component: OnboardingWizard    },
       // ── MediFlow Design System ──────────────────────────────────
       { path: "mediflow",               Component: MediFlowHub         },
