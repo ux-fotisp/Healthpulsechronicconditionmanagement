@@ -84,7 +84,7 @@ export function SectionBanner({
       <div className="flex-1 min-w-0">
         <p
           style={{
-            color,
+            color: "#FFFFFF",
             fontSize: T.nano,
             fontWeight: 800,
             fontFamily: "inherit",
